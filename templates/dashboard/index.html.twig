@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord — Jardinière{% endblock %}
+
+{% block body %}
+    <h1>Tableau de bord</h1>
+
+    <div class="stat-grid">
+        <div class="stat">
+            <p class="stat__label">Semis</p>
+            <p class="stat__value">{{ sowing_count }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Jardinières</p>
+            <p class="stat__value">{{ planter_count }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Espèces au catalogue</p>
+            <p class="stat__value">{{ species_count }}</p>
+        </div>
+    </div>
+
+    {% if sowing_count == 0 %}
+        <div class="card">
+            <p class="empty-state">
+                Rien de semé pour l'instant.<br>
+                Les écrans de saisie arrivent au prochain lot.
+            </p>
+        </div>
+    {% endif %}
+{% endblock %}
