@@ -55,13 +55,9 @@ else
 fi
 cd "$RACINE"
 
-etape "Dependances"
-if ! command -v composer > /dev/null; then
-    apt-get install -y -qq composer
-fi
-COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --no-interaction --quiet --optimize-autoloader
-
 etape "Configuration"
+# Ecrit avant l'installation des dependances : --no-dev retire
+# web-profiler-bundle, que Symfony charge tant que APP_ENV vaut dev.
 if [ ! -f .env.local ]; then
     cat > .env.local <<ENV
 APP_ENV=prod
@@ -80,6 +76,14 @@ ENV
 else
     echo "  .env.local existant, conserve"
 fi
+
+etape "Dependances"
+if ! command -v composer > /dev/null; then
+    apt-get install -y -qq composer
+fi
+# Sans --quiet : quand un script post-installation echoue, Composer n'affiche
+# que « Script @auto-scripts was called », le message utile etant masque.
+COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --no-interaction --optimize-autoloader
 
 etape "Base de donnees"
 php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration

@@ -24,9 +24,15 @@ prises en tenant le téléphone de côté apparaîtront couchées.
 
 ## Installation
 
+**Créer `.env.local` avec `APP_ENV=prod` avant `composer install`** (voir la
+section suivante). Dans l'autre ordre, l'installation échoue : `--no-dev` retire
+`web-profiler-bundle`, que Symfony tente pourtant de charger tant que
+l'environnement vaut `dev`.
+
 ```bash
 git clone https://github.com/alexandre-verbreugh/carnet-de-semis.git
 cd carnet-de-semis
+printf 'APP_ENV=prod\nAPP_SECRET=%s\n' "$(php -r 'echo bin2hex(random_bytes(16));')" > .env.local
 composer install --no-dev
 php bin/console doctrine:migrations:migrate --no-interaction
 php bin/console app:species:import
