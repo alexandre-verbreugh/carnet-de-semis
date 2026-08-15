@@ -1,0 +1,130 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ semis.species.fullName }} — Carnet de semis{% endblock %}
+
+{% block body %}
+    <p class="card__meta"><a href="{{ path('app_sowing_index') }}">← Semis</a></p>
+
+    <h1>{{ semis.species.fullName }}</h1>
+    <p class="card__meta">
+        <a href="{{ path('app_plot_show', {id: semis.plot.id}) }}">{{ semis.plot.name }}</a>
+        · semé le {{ semis.sownAt|date('d/m/Y') }}
+        {%- if semis.seedCount %} · {{ semis.seedCount }} graines{% endif %}
+        {%- if semis.depthMm is not null %} · {{ semis.depthMm }} mm{% endif %}
+        · {{ semis.method.label }}
+    </p>
+
+    <div class="stat-grid" style="margin-top: 1rem;">
+        <div class="stat">
+            <p class="stat__label">Statut</p>
+            <p class="stat__value" style="font-size: 1.1rem;">{{ semis.status.label }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Taux de levée</p>
+            <p class="stat__value">
+                {%- if semis.germinationRate is not null -%}
+                    {{ (semis.germinationRate * 100)|round }} %
+                {%- else -%}
+                    —
+                {%- endif -%}
+            </p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Levée réelle</p>
+            <p class="stat__value">
+                {%- if semis.actualGerminationDays is not null -%}
+                    {{ semis.actualGerminationDays }} j
+                {%- else -%}
+                    —
+                {%- endif -%}
+            </p>
+        </div>
+    </div>
+
+    <div class="card">
+        <p class="card__title">Prévisions</p>
+        {% if fenetre %}
+            <p class="card__meta">
+                Levée attendue entre le {{ fenetre.from|date('d/m/Y') }} et le {{ fenetre.to|date('d/m/Y') }}.
+                {% if en_retard %}
+                    <br><span class="badge badge--alerte">en retard</span>
+                    La fenêtre est passée sans levée constatée.
+                {% endif %}
+            </p>
+        {% else %}
+            <p class="card__meta">Délai de levée non documenté pour cette espèce.</p>
+        {% endif %}
+
+        {% if recolte_prevue %}
+            <p class="card__meta">Récolte envisageable à partir du {{ recolte_prevue|date('d/m/Y') }}.</p>
+        {% endif %}
+
+        {% if ecart_theorie is not null %}
+            <p class="card__meta" style="margin-top: 0.5rem;">
+                {% if ecart_theorie > 0 %}
+                    Levée en {{ ecart_theorie }} jour{{ ecart_theorie > 1 ? 's' : '' }} de plus que le délai théorique le plus court.
+                {% elseif ecart_theorie < 0 %}
+                    Levée en {{ ecart_theorie|abs }} jour{{ ecart_theorie|abs > 1 ? 's' : '' }} de moins que prévu.
+                {% else %}
+                    Levée pile dans le délai théorique.
+                {% endif %}
+            </p>
+        {% endif %}
+    </div>
+
+    {% if semis.failureReason %}
+        <div class="card">
+            <p class="card__title">Cause de l'échec</p>
+            <p class="card__meta">{{ semis.failureReason|nl2br }}</p>
+        </div>
+    {% endif %}
+
+    <h2 style="margin-top: 1.5rem;">Journal</h2>
+
+    {% for observation in semis.observations %}
+        <div class="card">
+            <p class="card__title">
+                {{ observation.observedAt|date('d/m/Y') }} — {{ observation.type.label }}
+                {% if observation.type.problem %}<span class="badge badge--alerte">problème</span>{% endif %}
+            </p>
+            <p class="card__meta">
+                {%- set mesures = [] -%}
+                {%- if observation.germinatedCount is not null -%}
+                    {%- set mesures = mesures|merge([observation.germinatedCount ~ ' plant' ~ (observation.germinatedCount > 1 ? 's' : '')]) -%}
+                {%- endif -%}
+                {%- if observation.heightCm is not null -%}
+                    {%- set mesures = mesures|merge([observation.heightCm ~ ' cm']) -%}
+                {%- endif -%}
+                {%- if observation.leafCount is not null -%}
+                    {%- set mesures = mesures|merge([observation.leafCount ~ ' feuilles']) -%}
+                {%- endif -%}
+                {%- if observation.harvestGrams is not null -%}
+                    {%- set mesures = mesures|merge([observation.harvestGrams ~ ' g récoltés']) -%}
+                {%- endif -%}
+                {{ mesures|join(' · ') }}
+                {%- if observation.note %}{% if mesures is not empty %}<br>{% endif %}{{ observation.note|nl2br }}{% endif %}
+            </p>
+
+            <form method="post" action="{{ path('app_observation_delete', {id: observation.id}) }}"
+                  style="margin-top: 0.5rem;">
+                <input type="hidden" name="_token" value="{{ csrf_token('supprimer-observation-' ~ observation.id) }}">
+                <button type="submit" class="btn" style="min-height: 32px; font-size: 0.8rem; padding: 0 0.6rem;">
+                    Supprimer
+                </button>
+            </form>
+        </div>
+    {% else %}
+        <div class="card"><p class="empty-state">Aucune observation.</p></div>
+    {% endfor %}
+
+    <div class="btn-row" style="margin-top: 1rem;">
+        <a href="{{ path('app_sowing_edit', {id: semis.id}) }}" class="btn">Modifier</a>
+        <a href="{{ path('app_observation_new', {semis: semis.id}) }}" class="btn btn--primary">Observer</a>
+    </div>
+{% endblock %}
+
+{% block floating_action %}
+    <a class="fab" href="{{ path('app_observation_new', {semis: semis.id}) }}" aria-label="Ajouter une observation">
+        <span aria-hidden="true">📷</span>
+    </a>
+{% endblock %}

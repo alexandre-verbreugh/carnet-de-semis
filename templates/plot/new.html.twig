@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvel emplacement — Carnet de semis{% endblock %}
+
+{% block body %}
+    <p class="card__meta"><a href="{{ path('app_plot_index') }}">← Emplacements</a></p>
+    <h1>Nouvel emplacement</h1>
+
+    {% include 'plot/_form.html.twig' with {bouton: 'Créer'} %}
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle observation — Carnet de semis{% endblock %}
+
+{% block body %}
+    {% if semis is defined and semis %}
+        <p class="card__meta"><a href="{{ path('app_sowing_show', {id: semis.id}) }}">← {{ semis.species.fullName }}</a></p>
+    {% endif %}
+
+    <h1>Observation</h1>
+    <p class="card__meta" style="margin-bottom: 1rem;">
+        Tout est facultatif sauf le type et la date. Mieux vaut une note approximative que rien.
+    </p>
+
+    {{ form_start(form) }}
+        {% if not form.vars.valid %}
+            <p class="flash flash--error" role="alert">
+                Le formulaire contient des erreurs, elles sont signalées sous les champs concernés.
+            </p>
+            {{ form_errors(form) }}
+        {% endif %}
+
+        <div class="card">
+            {{ form_row(form.type) }}
+            {{ form_row(form.observedAt) }}
+            {{ form_row(form.sowing) }}
+            {{ form_row(form.plot) }}
+        </div>
+
+        <div class="card">
+            <p class="card__title">Mesures</p>
+            {{ form_row(form.germinatedCount) }}
+            {{ form_row(form.heightCm) }}
+            {{ form_row(form.leafCount) }}
+            {{ form_row(form.harvestGrams) }}
+        </div>
+
+        <div class="card">{{ form_row(form.note) }}</div>
+
+        <button type="submit" class="btn btn--primary btn--block">Enregistrer</button>
+    {{ form_end(form) }}
+{% endblock %}
+
+{% block floating_action %}{% endblock %}

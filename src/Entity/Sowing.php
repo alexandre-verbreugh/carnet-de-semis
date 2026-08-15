@@ -81,7 +81,7 @@ class Sowing
     /**
      * @var Collection<int, Observation>
      */
-    #[ORM\OneToMany(targetEntity: Observation::class, mappedBy: 'sowing', cascade: ['remove'])]
+    #[ORM\OneToMany(targetEntity: Observation::class, mappedBy: 'sowing', cascade: ['persist', 'remove'])]
     #[ORM\OrderBy(['observedAt' => 'ASC', 'id' => 'ASC'])]
     private Collection $observations;
 

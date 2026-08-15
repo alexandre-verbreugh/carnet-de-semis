@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le semis — Carnet de semis{% endblock %}
+
+{% block body %}
+    <p class="card__meta"><a href="{{ path('app_sowing_show', {id: semis.id}) }}">← Retour au semis</a></p>
+    <h1>Modifier le semis</h1>
+
+    {% include 'sowing/_form.html.twig' with {bouton: 'Enregistrer'} %}
+{% endblock %}

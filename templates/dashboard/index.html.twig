@@ -7,25 +7,78 @@
 
     <div class="stat-grid">
         <div class="stat">
-            <p class="stat__label">Semis</p>
-            <p class="stat__value">{{ sowing_count }}</p>
+            <p class="stat__label">Semis en cours</p>
+            <p class="stat__value">{{ sowings_actifs|length }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Taux de levée</p>
+            <p class="stat__value">
+                {%- if taux_global is not null -%}
+                    {{ (taux_global * 100)|round }} %
+                {%- else -%}
+                    —
+                {%- endif -%}
+            </p>
         </div>
         <div class="stat">
             <p class="stat__label">Emplacements</p>
             <p class="stat__value">{{ plot_count }}</p>
         </div>
-        <div class="stat">
-            <p class="stat__label">Espèces au catalogue</p>
-            <p class="stat__value">{{ species_count }}</p>
-        </div>
     </div>
 
-    {% if sowing_count == 0 %}
+    {% if en_retard is not empty %}
+        <h2>Levées en retard</h2>
+        {% for semis in en_retard %}
+            <a href="{{ path('app_sowing_show', {id: semis.id}) }}" class="card" style="display: block; text-decoration: none; color: inherit;">
+                <p class="card__title">
+                    {{ semis.species.fullName }}
+                    <span class="badge badge--alerte">
+                        {{ forecaster.daysUntilGermination(semis)|abs }} j de retard
+                    </span>
+                </p>
+                <p class="card__meta">
+                    {{ semis.plot.name }} · semé le {{ semis.sownAt|date('d/m/Y') }}
+                    {%- if semis.plot.topLayer %}<br>Surface : {{ semis.plot.topLayer.label }}{% endif %}
+                </p>
+            </a>
+        {% endfor %}
+    {% endif %}
+
+    {% if a_venir is not empty %}
+        <h2>Levées attendues</h2>
+        {% for semis in a_venir %}
+            {% set restant = forecaster.daysUntilGermination(semis) %}
+            <a href="{{ path('app_sowing_show', {id: semis.id}) }}" class="card" style="display: block; text-decoration: none; color: inherit;">
+                <p class="card__title">
+                    {{ semis.species.fullName }}
+                    {% if restant is not null %}
+                        <span class="badge {{ restant == 0 ? 'badge--attente' : 'badge--ok' }}">
+                            {{ restant == 0 ? 'ces jours-ci' : 'dans ' ~ restant ~ ' j' }}
+                        </span>
+                    {% endif %}
+                </p>
+                <p class="card__meta">
+                    {{ semis.plot.name }} · semé le {{ semis.sownAt|date('d/m/Y') }}
+                </p>
+            </a>
+        {% endfor %}
+    {% endif %}
+
+    {% if sowings_actifs is empty %}
         <div class="card">
             <p class="empty-state">
                 Rien de semé pour l'instant.<br>
-                Les écrans de saisie arrivent au prochain lot.
+                Commence par créer un emplacement, puis enregistre ton premier semis.
             </p>
+            <div class="btn-row">
+                <a href="{{ path('app_plot_new') }}" class="btn">Nouvel emplacement</a>
+                <a href="{{ path('app_sowing_new') }}" class="btn btn--primary">Nouveau semis</a>
+            </div>
+        </div>
+    {% else %}
+        <div class="btn-row" style="margin-top: 1.5rem;">
+            <a href="{{ path('app_sowing_new') }}" class="btn">Nouveau semis</a>
+            <a href="{{ path('app_observation_new') }}" class="btn btn--primary">Observer</a>
         </div>
     {% endif %}
 {% endblock %}

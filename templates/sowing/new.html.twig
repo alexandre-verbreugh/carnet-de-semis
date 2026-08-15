@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouveau semis — Carnet de semis{% endblock %}
+
+{% block body %}
+    <p class="card__meta"><a href="{{ path('app_sowing_index') }}">← Semis</a></p>
+    <h1>Nouveau semis</h1>
+    <p class="card__meta" style="margin-bottom: 1rem;">
+        Renseigne le nombre de graines : sans lui, le taux de levée restera inconnu.
+    </p>
+
+    {% include 'sowing/_form.html.twig' with {bouton: 'Enregistrer le semis'} %}
+{% endblock %}
