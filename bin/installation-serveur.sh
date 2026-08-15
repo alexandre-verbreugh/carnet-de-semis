@@ -92,11 +92,21 @@ php bin/console cache:clear --env=prod --no-debug
 php bin/console cache:warmup --env=prod --no-debug
 
 etape "Permissions"
-# var/ contient la base et les photos : seul PHP doit y ecrire.
-chown -R www-data:www-data "$RACINE"
-chmod -R 750 "$RACINE/var"
+# Le code appartient a root, pas au serveur web : PHP ne doit pas pouvoir
+# reecrire les fichiers qu'il execute. Seul var/ lui est ouvert en ecriture,
+# parce que la base et les photos y vivent.
+#
+# C'est aussi ce qui permet a la tache de deploiement, lancee en root, de
+# manipuler le depot : git refuse d'operer sur un depot appartenant a un
+# autre utilisateur.
+chown -R root:www-data "$RACINE"
+chmod -R 750 "$RACINE"
 mkdir -p "$RACINE/var/uploads/photos"
-chown -R www-data:www-data "$RACINE/var/uploads"
+chown -R www-data:www-data "$RACINE/var"
+chmod -R 770 "$RACINE/var"
+
+# Ceinture et bretelles, au cas ou le depot aurait ete clone autrement.
+git config --global --add safe.directory "$RACINE" 2>/dev/null || true
 
 etape "Vhost Apache"
 a2enmod rewrite > /dev/null 2>&1 || true

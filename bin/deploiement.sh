@@ -29,6 +29,11 @@ fi
 
 cd "$RACINE"
 
+# git refuse d'operer sur un depot appartenant a un autre utilisateur. Le code
+# appartient a root et la tache tourne en root, mais une installation faite
+# autrement laisserait le depot a www-data.
+git config --global --add safe.directory "$RACINE" 2>/dev/null || true
+
 git fetch --quiet origin "$BRANCHE"
 
 LOCAL=$(git rev-parse HEAD)
@@ -60,8 +65,9 @@ php bin/console app:species:import
 php bin/console cache:clear --env=prod --no-debug
 php bin/console cache:warmup --env=prod --no-debug
 
+# Seul var/ appartient au serveur web ; le code reste a root.
 chown -R www-data:www-data var/
-chmod -R 750 var/
+chmod -R 770 var/
 
 journal "Deploye en ${DISTANT:0:8}"
 
