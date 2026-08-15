@@ -31,7 +31,7 @@ jobs:
           ini-values: upload_max_filesize=12M, post_max_size=40M
 
       - name: Verifier que GD sait ecrire du WebP
-        run: php -r 'exit(gd_info()["WebP Support"] ? 0 : 1);'
+        run: php -r 'if (!gd_info()["WebP Support"]) { exit(1); }'
 
       - name: Mettre en cache les dependances
         uses: actions/cache@v4
