@@ -52,10 +52,12 @@ class SpeciesType extends AbstractType
             ->add('sowingDepthMm', IntegerType::class, [
                 'label' => 'Profondeur de semis (mm)',
                 'required' => false,
+                'attr' => ['min' => 0, 'max' => 150],
             ])
             ->add('spacingCm', IntegerType::class, [
                 'label' => 'Espacement (cm)',
                 'required' => false,
+                'attr' => ['min' => 1, 'max' => 200],
             ])
             ->add('sowingMonths', ChoiceType::class, [
                 'label' => 'Mois de semis',
@@ -67,23 +69,28 @@ class SpeciesType extends AbstractType
             ->add('germinationDaysMin', IntegerType::class, [
                 'label' => 'Levée, au plus tôt (jours)',
                 'required' => false,
+                'attr' => ['min' => 1, 'max' => 365],
             ])
             ->add('germinationDaysMax', IntegerType::class, [
                 'label' => 'Levée, au plus tard (jours)',
                 'required' => false,
                 'help' => 'Ces deux valeurs déterminent la fenêtre de levée attendue sur le tableau de bord.',
+                'attr' => ['min' => 1, 'max' => 365],
             ])
             ->add('harvestDaysMin', IntegerType::class, [
                 'label' => 'Récolte, au plus tôt (jours)',
                 'required' => false,
+                'attr' => ['min' => 1, 'max' => 900],
             ])
             ->add('harvestDaysMax', IntegerType::class, [
                 'label' => 'Récolte, au plus tard (jours)',
                 'required' => false,
+                'attr' => ['min' => 1, 'max' => 900],
             ])
             ->add('germinationTempMinC', IntegerType::class, [
                 'label' => 'Température minimale de germination (°C)',
                 'required' => false,
+                'attr' => ['min' => -10, 'max' => 40],
             ])
             ->add('exposure', EnumType::class, [
                 'label' => 'Exposition',

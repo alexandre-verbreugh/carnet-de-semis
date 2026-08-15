@@ -55,6 +55,7 @@ class SowingForm extends AbstractType
                 'label' => 'Nombre de graines',
                 'required' => false,
                 'help' => 'Sans ce nombre, le taux de levée ne peut pas être calculé.',
+                'attr' => ['min' => 1, 'max' => 10000],
             ])
             ->add('method', EnumType::class, [
                 'label' => 'Méthode',
@@ -65,6 +66,7 @@ class SowingForm extends AbstractType
                 'label' => 'Profondeur (mm)',
                 'required' => false,
                 'help' => 'Pré-rempli depuis la fiche de l\'espèce, à ajuster si tu as fait autrement.',
+                'attr' => ['min' => 0, 'max' => 150],
             ])
             ->add('seedLot', EntityType::class, [
                 'label' => 'Sachet de graines',

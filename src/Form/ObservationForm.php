@@ -76,18 +76,22 @@ class ObservationForm extends AbstractType
                 'label' => 'Nombre de plants',
                 'required' => false,
                 'help' => 'Pour une levée : combien sont sortis. Pour une perte : combien il en reste.',
+                'attr' => ['min' => 0, 'max' => 10000],
             ])
             ->add('heightCm', IntegerType::class, [
                 'label' => 'Hauteur (cm)',
                 'required' => false,
+                'attr' => ['min' => 0, 'max' => 1000],
             ])
             ->add('leafCount', IntegerType::class, [
                 'label' => 'Nombre de feuilles',
                 'required' => false,
+                'attr' => ['min' => 0, 'max' => 1000],
             ])
             ->add('harvestGrams', IntegerType::class, [
                 'label' => 'Récolte (grammes)',
                 'required' => false,
+                'attr' => ['min' => 0, 'max' => 1000000],
             ])
             ->add('note', TextareaType::class, [
                 'label' => 'Note',

@@ -68,15 +68,18 @@ class PlotForm extends AbstractType
             ->add('lengthCm', IntegerType::class, [
                 'label' => 'Longueur (cm)',
                 'required' => false,
+                'attr' => ['min' => 1, 'max' => 10000],
             ])
             ->add('widthCm', IntegerType::class, [
                 'label' => 'Largeur (cm)',
                 'required' => false,
+                'attr' => ['min' => 1, 'max' => 10000],
             ])
             ->add('depthCm', IntegerType::class, [
                 'label' => 'Profondeur (cm)',
                 'required' => false,
                 'help' => 'Pour un contenant seulement. Sert à calculer le volume de substrat.',
+                'attr' => ['min' => 1, 'max' => 200],
             ])
             ->add('substrateComponents', EnumType::class, [
                 'label' => 'Composition du substrat',
