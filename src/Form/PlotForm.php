@@ -33,10 +33,19 @@ class PlotForm extends AbstractType
                 'help' => 'Ce que tu dis pour en parler : « bac du muret », « grande jardinière ».',
                 'attr' => ['placeholder' => 'Jardinière du balcon'],
             ])
+            // Affiche en boutons radio et non en liste deroulante : c'est le
+            // seul moyen de montrer l'explication de chaque type, et « butte »
+            // ou « lasagne » ne parlent pas a tout le monde.
             ->add('type', EnumType::class, [
                 'label' => 'Type',
                 'class' => PlotType::class,
-                'choice_label' => static fn (PlotType $type): string => $type->label(),
+                'expanded' => true,
+                'label_html' => true,
+                'choice_label' => static fn (PlotType $type): string => \sprintf(
+                    '<span class="choice__title">%s</span><span class="choice__hint">%s</span>',
+                    htmlspecialchars($type->label(), \ENT_QUOTES, 'UTF-8'),
+                    htmlspecialchars($type->description(), \ENT_QUOTES, 'UTF-8'),
+                ),
             ])
             ->add('shelter', EnumType::class, [
                 'label' => 'Abri',

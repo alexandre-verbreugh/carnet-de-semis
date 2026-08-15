@@ -36,6 +36,25 @@ enum PlotType: string
     }
 
     /**
+     * Explication affichee sous le choix, dans le formulaire.
+     *
+     * Tout le monde ne connait pas « lasagne » ou « butte » : sans ces lignes,
+     * la moitie des choix ne veut rien dire pour qui debute.
+     */
+    public function description(): string
+    {
+        return match ($this) {
+            self::Jardiniere => 'Bac allongé, posé au sol, sur pieds ou en balconnière.',
+            self::Pot => 'Contenant individuel, rond ou carré, pour un ou deux plants.',
+            self::SacCulture => 'Sac de terreau ouvert ou sac géotextile, posé au sol.',
+            self::CarreSureleve => 'Grand bac de 1 m² environ, rempli de substrat rapporté.',
+            self::PleineTerre => 'Planche, rang ou parcelle : le sol en place, sans contenant.',
+            self::Butte => 'Terre remontée en relief, parfois sur du bois enterré. Permanente, elle draine bien et se réchauffe vite.',
+            self::Lasagne => 'Couches alternées de matières brunes (carton, feuilles) et vertes (tontes, épluchures), empilées sans retourner le sol. S\'affaisse beaucoup la première année : mieux vaut y planter que semer.',
+        };
+    }
+
+    /**
      * Contenant ferme, dont le substrat est entierement rapporte.
      *
      * Seuls ces emplacements ont un volume calculable et une question de

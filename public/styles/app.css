@@ -424,6 +424,62 @@ textarea {
     font-size: 0.8125rem;
 }
 
+/*
+ * Choix multiples ou exclusifs presentes en liste.
+ *
+ * Les cases et boutons radio gardent leur taille native, mais toute la ligne
+ * est cliquable : viser un rond de 13 px avec un doigt terreux ne marche pas.
+ */
+.form-field input[type="radio"],
+.form-field input[type="checkbox"] {
+    width: auto;
+    min-height: auto;
+    margin: 0.2rem 0.6rem 0 0;
+    flex-shrink: 0;
+}
+
+.form-field label > input[type="radio"],
+.form-field label > input[type="checkbox"] {
+    margin-top: 0;
+}
+
+.form-field > div > label,
+.form-field fieldset label {
+    display: flex;
+    align-items: flex-start;
+    min-height: var(--cible-tactile);
+    padding: 0.5rem 0.6rem;
+    margin-bottom: 2px;
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon);
+    background: var(--surface);
+    font-weight: 400;
+    cursor: pointer;
+}
+
+.form-field > div > label:hover,
+.form-field fieldset label:hover {
+    border-color: var(--vert-clair);
+}
+
+.form-field label:has(input:checked) {
+    border-color: var(--vert);
+    background: var(--vert-pale);
+}
+
+.choice__title {
+    display: block;
+    font-weight: 500;
+}
+
+.choice__hint {
+    display: block;
+    margin-top: 0.1rem;
+    color: var(--texte-doux);
+    font-size: 0.8125rem;
+    line-height: 1.45;
+}
+
 .form-error {
     margin: 0.25rem 0 0;
     color: var(--rouge);
