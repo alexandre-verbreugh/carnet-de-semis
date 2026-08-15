@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% set mois_noms = {
+    1: 'janvier', 2: 'février', 3: 'mars', 4: 'avril',
+    5: 'mai', 6: 'juin', 7: 'juillet', 8: 'août',
+    9: 'septembre', 10: 'octobre', 11: 'novembre', 12: 'décembre'
+} %}
+
+{% block title %}{{ espece.fullName }} — Carnet de semis{% endblock %}
+
+{% block body %}
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_species_index'),
+        retour_label: 'Retour au catalogue',
+        titre: espece.fullName,
+    } %}
+    <p class="card__meta">
+        {{ espece.category.label }}{% if espece.family %} · {{ espece.family }}{% endif %}
+        {% if espece.custom %} · <span class="badge badge--attente">fiche perso</span>{% endif %}
+    </p>
+
+    <div class="stat-grid" style="margin-top: 1rem;">
+        <div class="stat">
+            <p class="stat__label">Profondeur de semis</p>
+            <p class="stat__value">{{ espece.sowingDepthMm is not null ? espece.sowingDepthMm ~ ' mm' : '—' }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Espacement</p>
+            <p class="stat__value">{{ espece.spacingCm is not null ? espece.spacingCm ~ ' cm' : '—' }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Levée attendue</p>
+            <p class="stat__value">
+                {%- if espece.germinationDaysMin and espece.germinationDaysMax -%}
+                    {{ espece.germinationDaysMin }}–{{ espece.germinationDaysMax }} j
+                {%- else -%}—{%- endif -%}
+            </p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Récolte</p>
+            <p class="stat__value">
+                {%- if espece.harvestDaysMin and espece.harvestDaysMax -%}
+                    {{ espece.harvestDaysMin }}–{{ espece.harvestDaysMax }} j
+                {%- else -%}—{%- endif -%}
+            </p>
+        </div>
+    </div>
+
+    <div class="card">
+        <p class="card__title">Conditions</p>
+        <p class="card__meta">
+            Semis : {% if espece.sowingMonths is empty %}non précisé{% else %}
+                {%- for m in espece.sowingMonths %}{{ mois_noms[m] }}{{ not loop.last ? ', ' }}{% endfor -%}
+            {% endif %}<br>
+            Exposition : {{ espece.exposure ? espece.exposure.label : 'non précisée' }}<br>
+            Besoin en eau : {{ espece.waterNeed ? espece.waterNeed.label : 'non précisé' }}<br>
+            {% if espece.germinationTempMinC is not null %}
+                Germination à partir de {{ espece.germinationTempMinC }} °C<br>
+            {% endif %}
+            Mise en place : {{ espece.directSow ? 'semis direct en place' : 'semis en godet puis repiquage' }}
+        </p>
+    </div>
+
+    {% if espece.notes %}
+        <div class="card">
+            <p class="card__title">Notes</p>
+            <p class="card__meta">{{ espece.notes|nl2br }}</p>
+        </div>
+    {% endif %}
+
+    <div class="btn-row" style="margin-top: 1rem;">
+        <a href="{{ path('app_species_edit', {id: espece.id}) }}" class="btn">Modifier</a>
+        {% if route_exists('app_sowing_new') %}
+            <a href="{{ path('app_sowing_new', {espece: espece.id}) }}" class="btn btn--primary">Semer</a>
+        {% endif %}
+    </div>
+{% endblock %}

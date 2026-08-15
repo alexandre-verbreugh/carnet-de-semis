@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion — Carnet de semis{% endblock %}
+
+{% block body %}
+    <div class="login">
+        <h1 class="login__title">🌱 Carnet de semis</h1>
+
+        {% if error %}
+            <p class="flash flash--error" role="alert">
+                {{ error.messageKey|trans(error.messageData, 'security') }}
+            </p>
+        {% endif %}
+
+        <form method="post" action="{{ path('app_login') }}">
+            <div class="form-field">
+                <label for="username">Identifiant</label>
+                <input type="text"
+                       id="username"
+                       name="_username"
+                       value="{{ last_username }}"
+                       autocomplete="username"
+                       autocapitalize="none"
+                       spellcheck="false"
+                       required
+                       autofocus>
+            </div>
+
+            <div class="form-field">
+                <label for="password">Mot de passe</label>
+                <input type="password"
+                       id="password"
+                       name="_password"
+                       autocomplete="current-password"
+                       required>
+            </div>
+
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+            <button type="submit" class="btn btn--primary btn--block">Se connecter</button>
+        </form>
+
+        <p class="form-help" style="margin-top: 1rem; text-align: center;">
+            Les comptes se créent en ligne de commande :
+            <code>php bin/console app:user:create</code>
+        </p>
+    </div>
+{% endblock %}
+
+{% block floating_action %}{% endblock %}

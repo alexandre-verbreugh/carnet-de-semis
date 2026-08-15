@@ -1,24 +1,94 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+        <meta name="theme-color" content="#3b6d11">
+        <title>{% block title %}Carnet de semis{% endblock %}</title>
+
+        <link rel="manifest" href="{{ asset('manifest.json') }}">
+        <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
+        <link rel="icon" href="{{ asset('images/icon-192.png') }}">
+
         {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
         {% endblock %}
 
         {% block javascripts %}
-            {% block importmap %}{{ importmap('app') }}{% endblock %}
+            <script src="{{ asset('js/app.js') }}" defer></script>
         {% endblock %}
-
-        {% set frankenphp_hot_reload = app.request.server.get('FRANKENPHP_HOT_RELOAD') %}
-        {% if frankenphp_hot_reload %}
-        <meta name="frankenphp-hot-reload:url" content="{{ frankenphp_hot_reload }}">
-        <script src="https://cdn.jsdelivr.net/npm/idiomorph"></script>
-        <script src="https://cdn.jsdelivr.net/npm/frankenphp-hot-reload/+esm" type="module"></script>
-        {% endif %}
     </head>
-    <body>
-        {% block body %}{% endblock %}
+    <body class="{% block body_class %}{% endblock %}">
+        {% if app.user %}
+            <header class="app-header">
+                <div class="app-header__bar">
+                    <a class="app-header__brand" href="{{ path('app_dashboard') }}">
+                        <span class="app-header__logo" aria-hidden="true">🌱</span>
+                        Carnet de semis
+                    </a>
+
+                    <button type="button"
+                            class="app-header__burger"
+                            data-nav-button
+                            aria-expanded="false"
+                            aria-controls="main-nav"
+                            aria-label="Ouvrir le menu">
+                        <span class="app-header__burger-bar" aria-hidden="true"></span>
+                        <span class="app-header__burger-bar" aria-hidden="true"></span>
+                        <span class="app-header__burger-bar" aria-hidden="true"></span>
+                    </button>
+
+                    <nav id="main-nav" class="app-nav" data-nav-menu>
+                        {% set nav_items = [
+                            { route: 'app_dashboard',  label: 'Tableau de bord' },
+                            { route: 'app_sowing_index',   label: 'Semis' },
+                            { route: 'app_plot_index',    label: 'Emplacements' },
+                            { route: 'app_species_index',  label: 'Espèces' },
+                            { route: 'app_calendar',       label: 'Calendrier' },
+                            { route: 'app_seed_lot_index', label: 'Graines' },
+                            { route: 'app_stats',          label: 'Statistiques' },
+                        ] %}
+
+                        <ul class="app-nav__list">
+                            {% for item in nav_items %}
+                                {% if route_exists(item.route) %}
+                                    <li>
+                                        <a href="{{ path(item.route) }}"
+                                           class="app-nav__link{{ app.request.attributes.get('_route') == item.route ? ' is-active' : '' }}"
+                                           {{ app.request.attributes.get('_route') == item.route ? 'aria-current="page"' : '' }}>
+                                            {{ item.label }}
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            <li class="app-nav__spacer"></li>
+                            <li>
+                                <a href="{{ path('app_logout') }}" class="app-nav__link app-nav__link--muted">Déconnexion</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </header>
+        {% endif %}
+
+        <main class="app-main">
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <p class="flash flash--{{ label }}" role="status">{{ message }}</p>
+                {% endfor %}
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </main>
+
+        {% if app.user %}
+            {% block floating_action %}
+                {% if route_exists('app_observation_new') %}
+                    <a class="fab" href="{{ path('app_observation_new') }}" aria-label="Ajouter une observation">
+                        <span aria-hidden="true">📷</span>
+                    </a>
+                {% endif %}
+            {% endblock %}
+        {% endif %}
     </body>
 </html>

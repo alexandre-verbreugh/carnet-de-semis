@@ -1,4 +1,3 @@
-
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
@@ -14,7 +13,10 @@
 /.phpunit.cache/
 ###< phpunit/phpunit ###
 
-###> symfony/asset-mapper ###
-/public/assets/
-/assets/vendor/
-###< symfony/asset-mapper ###
+# Fichiers d'assistants de developpement : propres a chacun, hors du depot.
+/CLAUDE.md
+/GEMINI.md
+/AGENTS.md
+/.claude/
+/.aider*
+/.opencode/

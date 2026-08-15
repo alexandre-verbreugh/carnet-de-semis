@@ -1,0 +1,100 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ plot.name }} — Carnet de semis{% endblock %}
+
+{% block body %}
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_plot_index'),
+        retour_label: 'Retour à la liste des emplacements',
+        titre: plot.name,
+    } %}
+    <p class="card__meta">
+        {{ plot.shortDescription }}{% if plot.location %} · {{ plot.location }}{% endif %}
+        {% if plot.archived %} · <span class="badge badge--alerte">retiré du suivi</span>{% endif %}
+    </p>
+
+    <div class="stat-grid" style="margin-top: 1rem;">
+        {% if plot.type.container %}
+            <div class="stat">
+                <p class="stat__label">Volume</p>
+                <p class="stat__value">{{ plot.volumeL ? plot.volumeL ~ ' L' : '—' }}</p>
+            </div>
+        {% endif %}
+        <div class="stat">
+            <p class="stat__label">Surface</p>
+            <p class="stat__value">{{ plot.areaM2 ? plot.areaM2 ~ ' m²' : '—' }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Semis</p>
+            <p class="stat__value">{{ plot.sowings|length }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <p class="card__title">Substrat</p>
+        {% if plot.substrateComponents is empty %}
+            <p class="card__meta">Non renseigné.</p>
+        {% else %}
+            <p class="card__meta">
+                {% for composant in plot.substrateComponents %}
+                    <span class="badge badge--ok">{{ composant.label }}</span>
+                {% endfor %}
+            </p>
+        {% endif %}
+
+        <p class="card__meta" style="margin-top: 0.75rem;">
+            <strong>Couche de surface :</strong>
+            {{ plot.topLayer ? plot.topLayer.label : 'non précisée' }}
+            {%- if plot.topLayer and not plot.topLayer.suitableAsTopLayer %}
+                <br><span class="badge badge--attente">à surveiller</span>
+                Cette couche se tasse ou forme une croûte : les petites graines peuvent avoir du mal à percer.
+            {%- endif %}
+        </p>
+
+        {% if plot.type.container %}
+            <p class="card__meta" style="margin-top: 0.5rem;">
+                <strong>Drainage :</strong> {{ plot.hasDrainage ? 'oui' : 'non' }}
+            </p>
+        {% endif %}
+
+        {% if plot.exposure %}
+            <p class="card__meta"><strong>Exposition :</strong> {{ plot.exposure.label }}</p>
+        {% endif %}
+
+        {% if not plot.receivesRain %}
+            <p class="card__meta" style="margin-top: 0.5rem;">
+                <span class="badge badge--attente">à l'abri de la pluie</span>
+                Les relevés de précipitations ne diront rien de ce que reçoit cet emplacement.
+            </p>
+        {% endif %}
+
+        {% if plot.filledAt %}
+            <p class="card__meta">Rempli le {{ plot.filledAt|date('d/m/Y') }}</p>
+        {% endif %}
+
+        {% if plot.substrateNote %}
+            <p class="card__meta" style="margin-top: 0.5rem;">{{ plot.substrateNote|nl2br }}</p>
+        {% endif %}
+    </div>
+
+    <h2 style="margin-top: 1.5rem;">Semis</h2>
+    {% for semis in plot.sowings %}
+        <a href="{{ path('app_sowing_show', {id: semis.id}) }}" class="card" style="display: block; text-decoration: none; color: inherit;">
+            <p class="card__title">{{ semis.species.fullName }}</p>
+            <p class="card__meta">
+                Semé le {{ semis.sownAt|date('d/m/Y') }}
+                {%- if semis.seedCount %} · {{ semis.seedCount }} graines{% endif %}
+                · {{ semis.status.label }}
+            </p>
+        </a>
+    {% else %}
+        <div class="card"><p class="empty-state">Rien de semé ici pour l'instant.</p></div>
+    {% endfor %}
+
+    <div class="btn-row" style="margin-top: 1rem;">
+        <a href="{{ path('app_plot_edit', {id: plot.id}) }}" class="btn">Modifier</a>
+        {% if not plot.archived %}
+            <a href="{{ path('app_sowing_new') }}" class="btn btn--primary">Semer ici</a>
+        {% endif %}
+    </div>
+{% endblock %}

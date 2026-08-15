@@ -1,0 +1,51 @@
+name: Budget de poids
+
+# Le projet promet des pages sous 8 ko et zero dependance JavaScript.
+# Sans verification automatique, cette promesse se degrade sans que personne
+# ne s'en apercoive.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  budget:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verifier l'absence de dependance JavaScript
+        run: |
+          if grep -qE '"(symfony/ux-turbo|symfony/stimulus-bundle|symfony/asset-mapper)"' composer.json; then
+            echo "Une dependance JavaScript a ete reintroduite dans composer.json."
+            exit 1
+          fi
+          if [ -f package.json ]; then
+            echo "package.json est apparu : le projet ne doit avoir aucune chaine de build."
+            exit 1
+          fi
+
+      - name: Verifier le poids des ressources statiques
+        run: |
+          limite=15360
+          for fichier in public/styles/app.css public/js/app.js; do
+            poids=$(stat -c%s "$fichier")
+            printf '%-24s %6d octets\n' "$fichier" "$poids"
+            if [ "$poids" -gt "$limite" ]; then
+              echo "$fichier depasse $limite octets."
+              exit 1
+            fi
+          done
+
+      - name: Verifier l'absence de requete vers un tiers
+        run: |
+          if grep -rniE 'https?://(fonts|cdn|unpkg|ajax)\.' templates/ public/styles/ public/js/; then
+            echo "Une ressource distante a ete introduite : le projet ne charge rien depuis un tiers."
+            exit 1
+          fi

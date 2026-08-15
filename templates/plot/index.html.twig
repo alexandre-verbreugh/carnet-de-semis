@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Emplacements — Carnet de semis{% endblock %}
+
+{% block body %}
+    <h1>Emplacements</h1>
+
+    {% for plot in plots %}
+        <a href="{{ path('app_plot_show', {id: plot.id}) }}" class="card" style="display: block; text-decoration: none; color: inherit;">
+            <p class="card__title">
+                {{ plot.name }}
+                {% if plot.archived %}<span class="badge badge--alerte">retiré</span>{% endif %}
+            </p>
+            <p class="card__meta">
+                {{ plot.shortDescription }}
+                {%- if plot.location %} · {{ plot.location }}{% endif %}
+                {%- if plot.volumeL %} · {{ plot.volumeL }} L{% endif %}
+                {%- if plot.topLayer %}<br>Surface : {{ plot.topLayer.label }}{% endif %}
+            </p>
+        </a>
+    {% else %}
+        <div class="card">
+            <p class="empty-state">
+                Aucun emplacement.<br>
+                Commence par décrire là où tu sèmes : un bac, un carré, une planche.
+            </p>
+        </div>
+    {% endfor %}
+
+    <a href="{{ path('app_plot_new') }}" class="btn btn--primary btn--block" style="margin-top: 1rem;">
+        Nouvel emplacement
+    </a>
+{% endblock %}

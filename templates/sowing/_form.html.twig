@@ -1,0 +1,25 @@
+{{ form_start(form) }}
+    {% if not form.vars.valid %}
+        <p class="flash flash--error" role="alert">
+            Le formulaire contient des erreurs, elles sont signalées sous les champs concernés.
+        </p>
+        {{ form_errors(form) }}
+    {% endif %}
+
+    <div class="card">
+        {{ form_row(form.plot) }}
+        {{ form_row(form.species) }}
+        {{ form_row(form.sownAt) }}
+    </div>
+
+    <div class="card">
+        <p class="card__title">Détails du semis</p>
+        {{ form_row(form.seedCount) }}
+        {{ form_row(form.method) }}
+        {{ form_row(form.depthMm) }}
+        {{ form_row(form.seedLot) }}
+        {{ form_row(form.notes) }}
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--block">{{ bouton }}</button>
+{{ form_end(form) }}

@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier le semis — Carnet de semis{% endblock %}
+
+{% block body %}
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_sowing_show', {id: semis.id}),
+        retour_label: 'Retour au semis',
+        titre: 'Modifier le semis',
+    } %}
+
+    {% include 'sowing/_form.html.twig' with {bouton: 'Enregistrer'} %}
+{% endblock %}
+
+{# Formulaire ou action deja presente : pas de rond flottant. #}
+{% block floating_action %}{% endblock %}

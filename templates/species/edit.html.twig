@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ espece.fullName }} — Carnet de semis{% endblock %}
+
+{% block body %}
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_species_show', {id: espece.id}),
+        retour_label: 'Retour à ' ~ espece.fullName,
+        titre: 'Modifier la fiche',
+    } %}
+    {% if not espece.custom %}
+        <p class="flash flash--warning">
+            Cette fiche vient du catalogue livré. En l'enregistrant, elle devient personnelle
+            et ne sera plus mise à jour par les imports.
+        </p>
+    {% endif %}
+
+    {% include 'species/_form.html.twig' with {bouton: 'Enregistrer'} %}
+{% endblock %}
+
+{# Formulaire ou action deja presente : pas de rond flottant. #}
+{% block floating_action %}{% endblock %}

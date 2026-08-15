@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Semis — Carnet de semis{% endblock %}
+
+{% block body %}
+    <h1>Semis</h1>
+
+    <div class="btn-row" style="margin-bottom: 1rem;">
+        <a href="{{ path('app_sowing_index') }}" class="btn{{ not tous ? ' btn--primary' : '' }}">En cours</a>
+        <a href="{{ path('app_sowing_index', {tous: 1}) }}" class="btn{{ tous ? ' btn--primary' : '' }}">Tous</a>
+    </div>
+
+    {% for semis in sowings %}
+        <a href="{{ path('app_sowing_show', {id: semis.id}) }}" class="card" style="display: block; text-decoration: none; color: inherit;">
+            <p class="card__title">
+                {{ semis.species.fullName }}
+                {% if forecaster.isGerminationOverdue(semis) %}
+                    <span class="badge badge--alerte">levée en retard</span>
+                {% elseif semis.germinationRate is not null %}
+                    <span class="badge badge--ok">{{ (semis.germinationRate * 100)|round }} % levés</span>
+                {% endif %}
+            </p>
+            <p class="card__meta">
+                {{ semis.plot.name }} · semé le {{ semis.sownAt|date('d/m/Y') }}
+                {%- if semis.seedCount %} · {{ semis.seedCount }} graines{% endif %}
+                <br>{{ semis.status.label }}
+                {%- set restant = forecaster.daysUntilGermination(semis) -%}
+                {%- if restant is not null and semis.status.awaitingGermination %}
+                    {%- if restant > 0 %} · levée attendue dans {{ restant }} j
+                    {%- elseif restant == 0 %} · levée attendue ces jours-ci
+                    {%- else %} · {{ restant|abs }} j de retard
+                    {%- endif %}
+                {%- endif %}
+            </p>
+        </a>
+    {% else %}
+        <div class="card">
+            <p class="empty-state">
+                {% if tous %}Aucun semis enregistré.{% else %}Aucun semis en cours.{% endif %}
+            </p>
+        </div>
+    {% endfor %}
+
+    <a href="{{ path('app_sowing_new') }}" class="btn btn--primary btn--block" style="margin-top: 1rem;">
+        Nouveau semis
+    </a>
+{% endblock %}

@@ -1,0 +1,66 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, 'feat/**']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # 8.4 est la version de production, 8.5 sert de garde-fou pour la suite.
+        php: ['8.4', '8.5']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: pdo_sqlite, gd, exif, intl, mbstring
+          coverage: none
+          ini-values: upload_max_filesize=12M, post_max_size=40M
+
+      - name: Verifier que GD sait ecrire du WebP
+        run: php -r 'exit(gd_info()["WebP Support"] ? 0 : 1);'
+
+      - name: Mettre en cache les dependances
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('composer.lock') }}
+
+      - name: Installer les dependances
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Valider composer.json
+        run: composer validate
+
+      - name: Verifier la syntaxe des gabarits
+        run: php bin/console lint:twig templates/
+
+      - name: Verifier la syntaxe des fichiers de configuration
+        run: php bin/console lint:yaml config/
+
+      - name: Verifier le mapping Doctrine
+        run: php bin/console doctrine:schema:validate --skip-sync
+
+      - name: Verifier que les migrations creent bien le schema
+        run: |
+          php bin/console doctrine:migrations:migrate --no-interaction
+          php bin/console doctrine:schema:validate
+
+      - name: Verifier l'import du catalogue
+        run: php bin/console app:species:import --dry-run
+
+      - name: Lancer les tests
+        run: php bin/phpunit

@@ -1,11 +1,14 @@
-# Enable stateless CSRF protection for forms and logins/logouts
+# Protection CSRF classique, adossee a la session.
+#
+# Le mode « stateless » propose par defaut depuis Symfony 7.2 envoie un simple
+# marqueur dans le champ cache et compte sur un script pour le remplacer par le
+# vrai jeton lu dans un cookie. L'application devant rester utilisable sans
+# JavaScript, aucun formulaire ne serait soumettable dans ce mode.
+#
+# Le cout est nul ici : la session existe deja pour l'authentification.
 framework:
     form:
-        csrf_protection:
-            token_id: submit
+        csrf_protection: true
 
     csrf_protection:
-        stateless_token_ids:
-            - submit
-            - authenticate
-            - logout
+        enabled: true

@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle espèce — Carnet de semis{% endblock %}
+
+{% block body %}
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_species_index'),
+        retour_label: 'Retour au catalogue',
+        titre: 'Nouvelle espèce',
+    } %}
+    <p class="card__meta" style="margin-bottom: 1rem;">
+        Les fiches ajoutées ici ne sont jamais écrasées par les mises à jour du catalogue livré.
+    </p>
+
+    {% include 'species/_form.html.twig' with {bouton: 'Ajouter au catalogue'} %}
+{% endblock %}
+
+{# Formulaire ou action deja presente : pas de rond flottant. #}
+{% block floating_action %}{% endblock %}
