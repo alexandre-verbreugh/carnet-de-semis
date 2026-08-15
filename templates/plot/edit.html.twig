@@ -3,8 +3,14 @@
 {% block title %}Modifier {{ plot.name }} — Carnet de semis{% endblock %}
 
 {% block body %}
-    <p class="card__meta"><a href="{{ path('app_plot_show', {id: plot.id}) }}">← {{ plot.name }}</a></p>
-    <h1>Modifier l'emplacement</h1>
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_plot_show', {id: plot.id}),
+        retour_label: 'Retour à ' ~ plot.name,
+        titre: "Modifier l'emplacement",
+    } %}
 
     {% include 'plot/_form.html.twig' with {bouton: 'Enregistrer'} %}
 {% endblock %}
+
+{# Formulaire ou action deja presente : pas de rond flottant. #}
+{% block floating_action %}{% endblock %}

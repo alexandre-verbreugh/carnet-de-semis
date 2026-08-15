@@ -1,0 +1,13 @@
+{#
+    En-tete de page : fleche de retour et titre sur la meme ligne.
+
+    La fleche occupe une cible de 44 px la ou le lien texte precedent en faisait
+    une vingtaine. Elle porte un libelle explicite pour les lecteurs d'ecran :
+    « retour » seul ne dit pas vers quoi.
+#}
+<div class="page-header">
+    <a href="{{ retour }}" class="page-header__back" aria-label="{{ retour_label }}">
+        <span aria-hidden="true">←</span>
+    </a>
+    <h1 class="page-header__title">{{ titre }}</h1>
+</div>

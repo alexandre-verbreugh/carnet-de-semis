@@ -9,9 +9,11 @@
 {% block title %}{{ espece.fullName }} — Carnet de semis{% endblock %}
 
 {% block body %}
-    <p class="card__meta"><a href="{{ path('app_species_index') }}">← Catalogue</a></p>
-
-    <h1>{{ espece.fullName }}</h1>
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_species_index'),
+        retour_label: 'Retour au catalogue',
+        titre: espece.fullName,
+    } %}
     <p class="card__meta">
         {{ espece.category.label }}{% if espece.family %} · {{ espece.family }}{% endif %}
         {% if espece.custom %} · <span class="badge badge--attente">fiche perso</span>{% endif %}

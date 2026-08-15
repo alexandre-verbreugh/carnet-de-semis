@@ -3,11 +3,17 @@
 {% block title %}Nouveau semis — Carnet de semis{% endblock %}
 
 {% block body %}
-    <p class="card__meta"><a href="{{ path('app_sowing_index') }}">← Semis</a></p>
-    <h1>Nouveau semis</h1>
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_sowing_index'),
+        retour_label: 'Retour à la liste des semis',
+        titre: 'Nouveau semis',
+    } %}
     <p class="card__meta" style="margin-bottom: 1rem;">
         Renseigne le nombre de graines : sans lui, le taux de levée restera inconnu.
     </p>
 
     {% include 'sowing/_form.html.twig' with {bouton: 'Enregistrer le semis'} %}
 {% endblock %}
+
+{# Formulaire ou action deja presente : pas de rond flottant. #}
+{% block floating_action %}{% endblock %}

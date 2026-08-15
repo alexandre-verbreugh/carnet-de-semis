@@ -245,6 +245,45 @@ img {
     .app-main { padding-bottom: 2rem; }
 }
 
+/* ------------------------------------------------------- En-tete de page */
+
+.page-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-bottom: 0.35rem;
+}
+
+.page-header__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--cible-tactile);
+    height: var(--cible-tactile);
+    border: 1px solid var(--bordure);
+    border-radius: var(--rayon);
+    background: var(--surface);
+    color: var(--texte);
+    font-size: 1.25rem;
+    line-height: 1;
+    text-decoration: none;
+}
+
+.page-header__back:hover,
+.page-header__back:focus-visible {
+    border-color: var(--vert);
+    background: var(--vert-pale);
+    color: var(--vert-clair);
+}
+
+.page-header__title {
+    /* Cale la premiere ligne du titre sur le centre du bouton. */
+    margin: 0;
+    padding-top: 0.35rem;
+    min-width: 0;
+}
+
 /* ----------------------------------------------------------------- Cartes */
 
 .card {

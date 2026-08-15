@@ -3,9 +3,11 @@
 {% block title %}{{ semis.species.fullName }} — Carnet de semis{% endblock %}
 
 {% block body %}
-    <p class="card__meta"><a href="{{ path('app_sowing_index') }}">← Semis</a></p>
-
-    <h1>{{ semis.species.fullName }}</h1>
+    {% include 'components/_page_header.html.twig' with {
+        retour: path('app_sowing_index'),
+        retour_label: 'Retour à la liste des semis',
+        titre: semis.species.fullName,
+    } %}
     <p class="card__meta">
         <a href="{{ path('app_plot_show', {id: semis.plot.id}) }}">{{ semis.plot.name }}</a>
         · semé le {{ semis.sownAt|date('d/m/Y') }}
@@ -123,8 +125,5 @@
     </div>
 {% endblock %}
 
-{% block floating_action %}
-    <a class="fab" href="{{ path('app_observation_new', {semis: semis.id}) }}" aria-label="Ajouter une observation">
-        <span aria-hidden="true">📷</span>
-    </a>
-{% endblock %}
+{# L'action « Observer » figure deja en bas de page : pas de rond flottant. #}
+{% block floating_action %}{% endblock %}
