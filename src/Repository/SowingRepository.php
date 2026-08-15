@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Sowing;
+use App\Entity\User;
 use App\Enum\SowingStatus;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -22,10 +24,10 @@ class SowingRepository extends ServiceEntityRepository
     /**
      * @return list<Sowing>
      */
-    public function findAllOrdered(): array
+    public function findAllForOwner(User $owner): array
     {
         /** @var list<Sowing> $sowings */
-        $sowings = $this->baseQuery()->getQuery()->getResult();
+        $sowings = $this->baseQuery($owner)->getQuery()->getResult();
 
         return $sowings;
     }
@@ -35,10 +37,10 @@ class SowingRepository extends ServiceEntityRepository
      *
      * @return list<Sowing>
      */
-    public function findActive(): array
+    public function findActiveForOwner(User $owner): array
     {
         /** @var list<Sowing> $sowings */
-        $sowings = $this->baseQuery()
+        $sowings = $this->baseQuery($owner)
             ->andWhere('s.status NOT IN (:closed)')
             ->setParameter('closed', [SowingStatus::Termine, SowingStatus::Echec])
             ->getQuery()
@@ -50,19 +52,21 @@ class SowingRepository extends ServiceEntityRepository
     /**
      * Semis dont la levee est toujours attendue.
      *
-     * Le tri est croissant : les semis les plus anciens, donc les plus en
-     * retard, remontent en tete du tableau de bord.
+     * Tri croissant : les plus anciens, donc les plus en retard, remontent en
+     * tete du tableau de bord.
      *
      * @return list<Sowing>
      */
-    public function findAwaitingGermination(): array
+    public function findAwaitingGerminationForOwner(User $owner): array
     {
         /** @var list<Sowing> $sowings */
         $sowings = $this->createQueryBuilder('s')
             ->addSelect('e', 'p')
             ->join('s.species', 'e')
             ->join('s.plot', 'p')
+            ->andWhere('s.owner = :owner')
             ->andWhere('s.status = :seme')
+            ->setParameter('owner', $owner)
             ->setParameter('seme', SowingStatus::Seme)
             ->orderBy('s.sownAt', 'ASC')
             ->getQuery()
@@ -71,12 +75,14 @@ class SowingRepository extends ServiceEntityRepository
         return $sowings;
     }
 
-    private function baseQuery(): \Doctrine\ORM\QueryBuilder
+    private function baseQuery(User $owner): QueryBuilder
     {
         return $this->createQueryBuilder('s')
             ->addSelect('e', 'p')
             ->join('s.species', 'e')
             ->join('s.plot', 'p')
+            ->andWhere('s.owner = :owner')
+            ->setParameter('owner', $owner)
             ->orderBy('s.sownAt', 'DESC')
             ->addOrderBy('s.id', 'DESC');
     }

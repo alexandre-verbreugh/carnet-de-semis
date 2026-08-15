@@ -39,6 +39,17 @@ class Observation
     #[Assert\NotNull]
     private ?Plot $plot = null;
 
+    /**
+     * Proprietaire des donnees.
+     *
+     * L'instance pouvant heberger plusieurs jardiniers, chaque enregistrement
+     * doit savoir a qui il appartient : sans ce champ, tout le monde verrait
+     * les semis de tout le monde.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?User $owner = null;
+
     #[ORM\Column(type: 'date_immutable')]
     #[Assert\NotNull]
     private ?\DateTimeImmutable $observedAt = null;
@@ -87,6 +98,18 @@ class Observation
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
+
+        return $this;
     }
 
     public function getSowing(): ?Sowing

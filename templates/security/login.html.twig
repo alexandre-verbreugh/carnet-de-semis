@@ -40,10 +40,11 @@
             <button type="submit" class="btn btn--primary btn--block">Se connecter</button>
         </form>
 
-        <p class="form-help" style="margin-top: 1rem; text-align: center;">
-            Les comptes se créent en ligne de commande :
-            <code>php bin/console app:user:create</code>
-        </p>
+        {% if route_exists('app_register') %}
+            <p class="form-help" style="margin-top: 1rem; text-align: center;">
+                Pas encore de compte ? <a href="{{ path('app_register') }}">En créer un</a>
+            </p>
+        {% endif %}
     </div>
 {% endblock %}
 

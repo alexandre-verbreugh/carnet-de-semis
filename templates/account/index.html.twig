@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon compte — Carnet de semis{% endblock %}
+
+{% block body %}
+    <h1>Mon compte</h1>
+    <p class="card__meta">Connecté en tant que <strong>{{ app.user.userIdentifier }}</strong></p>
+
+    <div class="stat-grid" style="margin-top: 1rem;">
+        <div class="stat">
+            <p class="stat__label">Emplacements</p>
+            <p class="stat__value">{{ plot_count }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Semis</p>
+            <p class="stat__value">{{ sowing_count }}</p>
+        </div>
+        <div class="stat">
+            <p class="stat__label">Photos</p>
+            <p class="stat__value">{{ photo_count }}</p>
+        </div>
+    </div>
+
+    <div class="card">
+        <p class="card__title">Mot de passe</p>
+        <p class="card__meta">
+            Cette instance n'envoie aucun courriel : un mot de passe perdu ne peut pas
+            être réinitialisé automatiquement. Il faut demander à la personne qui héberge
+            l'instance de le faire en ligne de commande.
+        </p>
+    </div>
+
+    <div class="card" style="border-color: var(--rouge);">
+        <p class="card__title">Supprimer mon compte</p>
+        <p class="card__meta">
+            Efface définitivement le compte, les emplacements, les semis, les observations
+            et les photos. Les variétés ajoutées au catalogue disparaissent aussi.
+            <strong>Cette action est irréversible et il n'existe aucune sauvegarde côté utilisateur.</strong>
+        </p>
+
+        <form method="post" action="{{ path('app_account_delete') }}" style="margin-top: 1rem;">
+            <input type="hidden" name="_token" value="{{ csrf_token('supprimer-compte') }}">
+
+            <div class="form-field">
+                <label for="password-suppression">Confirme avec ton mot de passe</label>
+                <input type="password" id="password-suppression" name="password"
+                       autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" class="btn btn--block"
+                    style="border-color: var(--rouge); color: var(--rouge);">
+                Supprimer définitivement mon compte
+            </button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block floating_action %}{% endblock %}

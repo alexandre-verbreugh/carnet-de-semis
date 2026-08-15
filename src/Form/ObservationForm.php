@@ -7,6 +7,7 @@ namespace App\Form;
 use App\Entity\Observation;
 use App\Entity\Plot;
 use App\Entity\Sowing;
+use App\Entity\User;
 use App\Enum\ObservationType;
 use App\Enum\SowingStatus;
 use App\Repository\PlotRepository;
@@ -61,7 +62,9 @@ class ObservationForm extends AbstractType
                 ),
                 'query_builder' => static fn (SowingRepository $repository) => $repository
                     ->createQueryBuilder('s')
+                    ->andWhere('s.owner = :owner')
                     ->andWhere('s.status NOT IN (:closed)')
+                    ->setParameter('owner', $options['owner'])
                     ->setParameter('closed', [SowingStatus::Termine, SowingStatus::Echec])
                     ->orderBy('s.sownAt', 'DESC'),
             ])
@@ -71,7 +74,9 @@ class ObservationForm extends AbstractType
                 'choice_label' => static fn (Plot $plot): string => $plot->getName(),
                 'query_builder' => static fn (PlotRepository $repository) => $repository
                     ->createQueryBuilder('p')
+                    ->andWhere('p.owner = :owner')
                     ->andWhere('p.isArchived = false')
+                    ->setParameter('owner', $options['owner'])
                     ->orderBy('p.name', 'ASC'),
                 'help' => 'Renseigné automatiquement si un semis est choisi.',
                 'required' => false,
@@ -145,5 +150,9 @@ class ObservationForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(['data_class' => Observation::class]);
+        // Sans cette option, les listes deroulantes proposeraient les semis
+        // et emplacements de tous les jardiniers de l'instance.
+        $resolver->setRequired('owner');
+        $resolver->setAllowedTypes('owner', User::class);
     }
 }

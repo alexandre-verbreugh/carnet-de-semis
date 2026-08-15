@@ -6,9 +6,11 @@ namespace App\Controller;
 
 use App\Entity\Sowing;
 use App\Entity\Species;
+use App\Entity\User;
 use App\Enum\ObservationType;
 use App\Form\SowingForm;
 use App\Repository\SowingRepository;
+use App\Security\Voter\OwnerVoter;
 use App\Service\GerminationForecaster;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
@@ -16,17 +18,24 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route('/semis')]
 class SowingController extends AbstractController
 {
     #[Route('', name: 'app_sowing_index', methods: ['GET'])]
-    public function index(Request $request, SowingRepository $sowingRepository, GerminationForecaster $forecaster): Response
-    {
+    public function index(
+        Request $request,
+        SowingRepository $sowingRepository,
+        GerminationForecaster $forecaster,
+        #[CurrentUser] User $user,
+    ): Response {
         $tousLesSemis = $request->query->getBoolean('tous');
 
         return $this->render('sowing/index.html.twig', [
-            'sowings' => $tousLesSemis ? $sowingRepository->findAllOrdered() : $sowingRepository->findActive(),
+            'sowings' => $tousLesSemis
+                ? $sowingRepository->findAllForOwner($user)
+                : $sowingRepository->findActiveForOwner($user),
             'tous' => $tousLesSemis,
             'forecaster' => $forecaster,
         ]);
@@ -36,9 +45,11 @@ class SowingController extends AbstractController
     public function new(
         Request $request,
         EntityManagerInterface $entityManager,
+        #[CurrentUser] User $user,
         #[MapEntity(mapping: ['espece' => 'id'])] ?Species $espece = null,
     ): Response {
         $semis = new Sowing();
+        $semis->setOwner($user);
 
         // Arrive depuis une fiche d'espece : on pre-remplit l'espece et la
         // profondeur conseillee, pour n'avoir plus qu'a valider.
@@ -47,7 +58,7 @@ class SowingController extends AbstractController
             $semis->setDepthMm($espece->getSowingDepthMm());
         }
 
-        $form = $this->createForm(SowingForm::class, $semis);
+        $form = $this->createForm(SowingForm::class, $semis, ['owner' => $user]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -55,7 +66,7 @@ class SowingController extends AbstractController
 
             // Le semis lui-meme ouvre le journal : la timeline commence donc
             // toujours par une entree, sans saisie supplementaire.
-            $semis->addObservation($this->buildSowingObservation($semis));
+            $semis->addObservation($this->buildSowingObservation($semis, $user));
 
             // Le sachet utilise est decremente d'autant de graines.
             $semis->getSeedLot()?->consumeSeeds($semis->getSeedCount() ?? 0);
@@ -73,6 +84,8 @@ class SowingController extends AbstractController
     #[Route('/{id}', name: 'app_sowing_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Sowing $semis, GerminationForecaster $forecaster): Response
     {
+        $this->denyAccessUnlessGranted(OwnerVoter::VOIR, $semis);
+
         return $this->render('sowing/show.html.twig', [
             'semis' => $semis,
             'fenetre' => $forecaster->germinationWindow($semis),
@@ -83,9 +96,15 @@ class SowingController extends AbstractController
     }
 
     #[Route('/{id}/modifier', name: 'app_sowing_edit', requirements: ['id' => '\d+'], methods: ['GET', 'POST'])]
-    public function edit(Request $request, Sowing $semis, EntityManagerInterface $entityManager): Response
-    {
-        $form = $this->createForm(SowingForm::class, $semis);
+    public function edit(
+        Request $request,
+        Sowing $semis,
+        EntityManagerInterface $entityManager,
+        #[CurrentUser] User $user,
+    ): Response {
+        $this->denyAccessUnlessGranted(OwnerVoter::MODIFIER, $semis);
+
+        $form = $this->createForm(SowingForm::class, $semis, ['owner' => $user]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -101,9 +120,10 @@ class SowingController extends AbstractController
         ]);
     }
 
-    private function buildSowingObservation(Sowing $semis): \App\Entity\Observation
+    private function buildSowingObservation(Sowing $semis, User $user): \App\Entity\Observation
     {
         $observation = new \App\Entity\Observation();
+        $observation->setOwner($user);
         $observation->setType(ObservationType::Semis);
         $observation->setObservedAt($semis->getSownAt());
         $observation->setPlot($semis->getPlot());

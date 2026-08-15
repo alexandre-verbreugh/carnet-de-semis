@@ -62,6 +62,11 @@
                                 {% endif %}
                             {% endfor %}
                             <li class="app-nav__spacer"></li>
+                            {% if route_exists('app_account') %}
+                                <li>
+                                    <a href="{{ path('app_account') }}" class="app-nav__link app-nav__link--muted">Mon compte</a>
+                                </li>
+                            {% endif %}
                             <li>
                                 <a href="{{ path('app_logout') }}" class="app-nav__link app-nav__link--muted">Déconnexion</a>
                             </li>

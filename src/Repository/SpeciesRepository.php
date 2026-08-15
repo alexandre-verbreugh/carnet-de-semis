@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Repository;
 
 use App\Entity\Species;
+use App\Entity\User;
 use App\Enum\SpeciesCategory;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -20,18 +21,21 @@ class SpeciesRepository extends ServiceEntityRepository
     }
 
     /**
-     * Catalogue filtre.
+     * Catalogue visible par un jardinier : les fiches livrees avec le projet,
+     * plus ses propres varietes.
      *
-     * Le filtre sur le mois de semis est applique en PHP : les mois sont stockes
-     * en JSON, et le catalogue tient dans quelques dizaines de lignes. Une
-     * requete SQL portable sur du JSON couterait bien plus cher a maintenir que
-     * ce qu'elle ferait gagner.
+     * Le filtre sur le mois de semis est applique en PHP : les mois sont
+     * stockes en JSON, et le catalogue tient dans quelques dizaines de lignes.
+     * Une requete SQL portable sur du JSON couterait bien plus cher a maintenir
+     * que ce qu'elle ferait gagner.
      *
      * @return list<Species>
      */
-    public function search(?string $terme = null, ?SpeciesCategory $categorie = null, ?int $mois = null): array
+    public function search(User $owner, ?string $terme = null, ?SpeciesCategory $categorie = null, ?int $mois = null): array
     {
         $qb = $this->createQueryBuilder('e')
+            ->andWhere('e.owner IS NULL OR e.owner = :owner')
+            ->setParameter('owner', $owner)
             ->orderBy('e.name', 'ASC')
             ->addOrderBy('e.variety', 'ASC');
 
@@ -55,5 +59,15 @@ class SpeciesRepository extends ServiceEntityRepository
         }
 
         return $especes;
+    }
+
+    public function countVisibleFor(User $owner): int
+    {
+        return (int) $this->createQueryBuilder('e')
+            ->select('COUNT(e.id)')
+            ->andWhere('e.owner IS NULL OR e.owner = :owner')
+            ->setParameter('owner', $owner)
+            ->getQuery()
+            ->getSingleScalarResult();
     }
 }

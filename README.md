@@ -12,6 +12,27 @@ compare le **taux de levée** et le **délai réel** aux délais théoriques de
 l'espèce — par emplacement, par substrat et par saison. Au bout de deux saisons,
 ce sont vos chiffres qui décident, plus les tables imprimées au dos des sachets.
 
+## Un ou plusieurs jardiniers
+
+L'application fonctionne aussi bien pour une personne seule que pour plusieurs
+sur la même instance. **Chaque jardinier ne voit que ses propres données** :
+emplacements, semis, observations et photos sont cloisonnés. Seul le catalogue
+d'espèces est commun ; les variétés ajoutées à la main restent personnelles.
+
+Les inscriptions sont **fermées par défaut** (`APP_OPEN_REGISTRATION=false`).
+Dans ce mode, seule la création du tout premier compte reste possible depuis le
+navigateur, ce qui permet d'installer l'application sans accès SSH.
+
+Ouvrir les inscriptions expose le formulaire à tous. Il est protégé par un champ
+leurre invisible et un délai minimal de saisie — **pas de captcha, donc aucune
+requête vers un service tiers**. Cela arrête les robots généralistes, pas un
+programme écrit exprès pour cette application.
+
+> **L'application n'envoie aucun courriel.** Un mot de passe perdu ne peut donc
+> pas être réinitialisé par son propriétaire : il faut passer par
+> `php bin/console app:user:create`, qui remplace le mot de passe d'un compte
+> existant. À garder en tête avant d'ouvrir les inscriptions.
+
 ## Ce qu'elle fait
 
 - Un journal par semis : levée, arrosage, éclaircissage, maladie, récolte

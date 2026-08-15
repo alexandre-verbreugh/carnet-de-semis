@@ -6,7 +6,9 @@ namespace App\Controller;
 
 use App\Entity\Observation;
 use App\Entity\Sowing;
+use App\Entity\User;
 use App\Form\ObservationForm;
+use App\Security\Voter\OwnerVoter;
 use App\Service\ObservationRecorder;
 use App\Service\PhotoStorage;
 use Doctrine\ORM\EntityManagerInterface;
@@ -16,6 +18,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 #[Route('/observations')]
 class ObservationController extends AbstractController
@@ -25,15 +28,18 @@ class ObservationController extends AbstractController
         Request $request,
         ObservationRecorder $recorder,
         PhotoStorage $storage,
+        #[CurrentUser] User $user,
         #[MapEntity(mapping: ['semis' => 'id'])] ?Sowing $semis = null,
     ): Response {
         $observation = new Observation();
+        $observation->setOwner($user);
 
         if (null !== $semis) {
+            $this->denyAccessUnlessGranted(OwnerVoter::MODIFIER, $semis);
             $observation->setSowing($semis);
         }
 
-        $form = $this->createForm(ObservationForm::class, $observation);
+        $form = $this->createForm(ObservationForm::class, $observation, ['owner' => $user]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -47,6 +53,13 @@ class ObservationController extends AbstractController
                 $this->addFlash('error', 'Choisis un emplacement ou un semis.');
 
                 return $this->render('observation/new.html.twig', ['form' => $form]);
+            }
+
+            // Les listes du formulaire sont deja filtrees, mais rien n'empeche
+            // de soumettre un identifiant forge : on revalide cote serveur.
+            $this->denyAccessUnlessGranted(OwnerVoter::MODIFIER, $observation->getPlot());
+            if (null !== $observation->getSowing()) {
+                $this->denyAccessUnlessGranted(OwnerVoter::MODIFIER, $observation->getSowing());
             }
 
             $refusees = $this->attachPhotos($observation, $form->get('photos')->getData(), $storage);
@@ -107,6 +120,8 @@ class ObservationController extends AbstractController
     #[Route('/{id}/supprimer', name: 'app_observation_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
     public function delete(Request $request, Observation $observation, EntityManagerInterface $entityManager): Response
     {
+        $this->denyAccessUnlessGranted(OwnerVoter::MODIFIER, $observation);
+
         if (!$this->isCsrfTokenValid('supprimer-observation-'.$observation->getId(), $request->request->getString('_token'))) {
             $this->addFlash('error', 'Jeton invalide, suppression annulée.');
 
