@@ -1,0 +1,41 @@
+{{ form_start(form) }}
+    {% if not form.vars.valid %}
+        <p class="flash flash--error" role="alert">
+            Le formulaire contient des erreurs, elles sont signalées sous les champs concernés.
+        </p>
+        {{ form_errors(form) }}
+    {% endif %}
+
+    <div class="card">
+        {{ form_row(form.name) }}
+        {{ form_row(form.variety) }}
+        {{ form_row(form.category) }}
+        {{ form_row(form.family) }}
+    </div>
+
+    <div class="card">
+        <p class="card__title">Semis</p>
+        {{ form_row(form.sowingDepthMm) }}
+        {{ form_row(form.spacingCm) }}
+        {{ form_row(form.directSow) }}
+        {{ form_row(form.sowingMonths) }}
+    </div>
+
+    <div class="card">
+        <p class="card__title">Délais</p>
+        {{ form_row(form.germinationDaysMin) }}
+        {{ form_row(form.germinationDaysMax) }}
+        {{ form_row(form.harvestDaysMin) }}
+        {{ form_row(form.harvestDaysMax) }}
+        {{ form_row(form.germinationTempMinC) }}
+    </div>
+
+    <div class="card">
+        <p class="card__title">Conditions</p>
+        {{ form_row(form.exposure) }}
+        {{ form_row(form.waterNeed) }}
+        {{ form_row(form.notes) }}
+    </div>
+
+    <button type="submit" class="btn btn--primary btn--block">{{ bouton }}</button>
+{{ form_end(form) }}

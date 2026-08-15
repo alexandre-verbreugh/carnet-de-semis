@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Nouvelle espèce — Jardinière{% endblock %}
+
+{% block body %}
+    <p class="card__meta"><a href="{{ path('app_species_index') }}">← Catalogue</a></p>
+    <h1>Nouvelle espèce</h1>
+    <p class="card__meta" style="margin-bottom: 1rem;">
+        Les fiches ajoutées ici ne sont jamais écrasées par les mises à jour du catalogue livré.
+    </p>
+
+    {% include 'species/_form.html.twig' with {bouton: 'Ajouter au catalogue'} %}
+{% endblock %}

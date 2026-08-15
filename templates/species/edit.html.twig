@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ espece.fullName }} — Jardinière{% endblock %}
+
+{% block body %}
+    <p class="card__meta"><a href="{{ path('app_species_show', {id: espece.id}) }}">← {{ espece.fullName }}</a></p>
+    <h1>Modifier la fiche</h1>
+    {% if not espece.custom %}
+        <p class="flash flash--warning">
+            Cette fiche vient du catalogue livré. En l'enregistrant, elle devient personnelle
+            et ne sera plus mise à jour par les imports.
+        </p>
+    {% endif %}
+
+    {% include 'species/_form.html.twig' with {bouton: 'Enregistrer'} %}
+{% endblock %}

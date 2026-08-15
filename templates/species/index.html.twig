@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Espèces — Jardinière{% endblock %}
+
+{% block body %}
+    <h1>Catalogue d'espèces</h1>
+
+    <form method="get" action="{{ path('app_species_index') }}" class="card">
+        <div class="form-field">
+            <label for="q">Rechercher</label>
+            <input type="search" id="q" name="q" value="{{ terme }}"
+                   placeholder="radis, laitue, Brassicacées…"
+                   autocapitalize="none">
+        </div>
+
+        <div class="form-field">
+            <label for="categorie">Catégorie</label>
+            <select id="categorie" name="categorie">
+                <option value="">Toutes</option>
+                {% for cas in categories %}
+                    <option value="{{ cas.value }}" {{ categorie == cas ? 'selected' : '' }}>{{ cas.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="form-field">
+            <label for="maintenant" style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="maintenant" name="maintenant" value="1"
+                       style="width: auto; min-height: auto;"
+                       {{ maintenant ? 'checked' : '' }}>
+                Semable ce mois-ci
+            </label>
+        </div>
+
+        <div class="btn-row">
+            <button type="submit" class="btn btn--primary">Filtrer</button>
+            <a href="{{ path('app_species_index') }}" class="btn">Tout voir</a>
+        </div>
+    </form>
+
+    <p class="card__meta" style="margin: 1rem 0 0.5rem;">
+        {{ especes|length }} espèce{{ especes|length > 1 ? 's' : '' }}
+    </p>
+
+    {% for espece in especes %}
+        <a href="{{ path('app_species_show', {id: espece.id}) }}" class="card" style="display: block; text-decoration: none; color: inherit;">
+            <p class="card__title">
+                {{ espece.fullName }}
+                {% if espece.custom %}<span class="badge badge--attente">perso</span>{% endif %}
+            </p>
+            <p class="card__meta">
+                {{ espece.category.label }}
+                {%- if espece.germinationDaysMin and espece.germinationDaysMax %}
+                    · levée en {{ espece.germinationDaysMin }} à {{ espece.germinationDaysMax }} jours
+                {%- endif %}
+                {%- if espece.sowingDepthMm is not null %} · {{ espece.sowingDepthMm }} mm de profondeur{% endif %}
+            </p>
+        </a>
+    {% else %}
+        <div class="card">
+            <p class="empty-state">
+                Aucune espèce ne correspond.<br>
+                {% if maintenant %}Essaie sans le filtre du mois en cours.{% endif %}
+            </p>
+        </div>
+    {% endfor %}
+
+    <a href="{{ path('app_species_new') }}" class="btn btn--block" style="margin-top: 1rem;">
+        Ajouter une espèce
+    </a>
+{% endblock %}
