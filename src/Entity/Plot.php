@@ -5,25 +5,33 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Enum\Exposure;
+use App\Enum\PlotType;
+use App\Enum\Shelter;
 use App\Enum\SubstrateComponent;
-use App\Repository\PlanterRepository;
+use App\Repository\PlotRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Une jardiniere, un bac ou un pot.
+ * Un emplacement de culture : jardiniere, pot, carre surel3eve, planche de
+ * pleine terre, butte...
  *
- * Le substrat est decrit par deux champs complementaires :
- *  - substrateComponents : tout ce qui compose le remplissage (un bac est presque
- *    toujours un melange) ;
+ * Deux dimensions independantes le decrivent : le contenant (type) et la
+ * protection (shelter). Un semis peut se faire en pleine terre sous serre
+ * comme en bac a l'air libre.
+ *
+ * Le substrat est lui aussi decrit par deux champs :
+ *  - substrateComponents : tout ce qui compose le remplissage, un substrat
+ *    etant presque toujours un melange ;
  *  - topLayer : ce qui recouvre effectivement la graine. C'est ce dernier qui
- *    determine la levee, et donc la seule base de comparaison honnete entre bacs.
+ *    determine la levee, et donc la seule base de comparaison honnete entre
+ *    emplacements.
  */
-#[ORM\Entity(repositoryClass: PlanterRepository::class)]
-#[ORM\Table(name: 'planter')]
-class Planter
+#[ORM\Entity(repositoryClass: PlotRepository::class)]
+#[ORM\Table(name: 'plot')]
+class Plot
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -35,24 +43,34 @@ class Planter
     #[Assert\Length(max: 100)]
     private string $name = '';
 
+    #[ORM\Column(enumType: PlotType::class)]
+    private PlotType $type = PlotType::Jardiniere;
+
+    #[ORM\Column(enumType: Shelter::class)]
+    private Shelter $shelter = Shelter::Aucun;
+
     #[ORM\Column(length: 150, nullable: true)]
     #[Assert\Length(max: 150)]
     private ?string $location = null;
 
     #[ORM\Column(nullable: true)]
-    #[Assert\Range(min: 1, max: 1000)]
+    #[Assert\Range(min: 1, max: 10000)]
     private ?int $lengthCm = null;
 
     #[ORM\Column(nullable: true)]
-    #[Assert\Range(min: 1, max: 1000)]
+    #[Assert\Range(min: 1, max: 10000)]
     private ?int $widthCm = null;
 
+    /**
+     * Profondeur utile. N'a de sens que pour un contenant : en pleine terre,
+     * c'est le sol qui decide.
+     */
     #[ORM\Column(nullable: true)]
     #[Assert\Range(min: 1, max: 200)]
     private ?int $depthCm = null;
 
     /**
-     * Composition du remplissage.
+     * Composition du remplissage ou du sol.
      *
      * @var list<string> valeurs de SubstrateComponent
      */
@@ -75,7 +93,7 @@ class Planter
     private ?\DateTimeImmutable $filledAt = null;
 
     /**
-     * Une jardiniere retiree du suivi reste consultable mais n'accepte plus de semis.
+     * Un emplacement archive reste consultable mais n'accepte plus de semis.
      */
     #[ORM\Column]
     private bool $isArchived = false;
@@ -83,7 +101,7 @@ class Planter
     /**
      * @var Collection<int, Sowing>
      */
-    #[ORM\OneToMany(targetEntity: Sowing::class, mappedBy: 'planter')]
+    #[ORM\OneToMany(targetEntity: Sowing::class, mappedBy: 'plot')]
     private Collection $sowings;
 
     public function __construct()
@@ -104,6 +122,30 @@ class Planter
     public function setName(string $name): static
     {
         $this->name = $name;
+
+        return $this;
+    }
+
+    public function getType(): PlotType
+    {
+        return $this->type;
+    }
+
+    public function setType(PlotType $type): static
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    public function getShelter(): Shelter
+    {
+        return $this->shelter;
+    }
+
+    public function setShelter(Shelter $shelter): static
+    {
+        $this->shelter = $shelter;
 
         return $this;
     }
@@ -157,10 +199,29 @@ class Planter
     }
 
     /**
-     * Volume utile en litres, calcule a partir des dimensions.
+     * Surface cultivee en metres carres.
+     */
+    public function getAreaM2(): ?float
+    {
+        if (null === $this->lengthCm || null === $this->widthCm) {
+            return null;
+        }
+
+        return round($this->lengthCm * $this->widthCm / 10000, 2);
+    }
+
+    /**
+     * Volume de substrat en litres.
+     *
+     * Null hors contenant : parler du volume d'une planche de pleine terre
+     * n'aurait aucun sens.
      */
     public function getVolumeL(): ?float
     {
+        if (!$this->type->isContainer()) {
+            return null;
+        }
+
         if (null === $this->lengthCm || null === $this->widthCm || null === $this->depthCm) {
             return null;
         }
@@ -245,6 +306,22 @@ class Planter
         return $this;
     }
 
+    /**
+     * La question du drainage ne se pose que pour un contenant.
+     */
+    public function isDrainageRelevant(): bool
+    {
+        return $this->type->isContainer();
+    }
+
+    /**
+     * Les releves de pluie decrivent-ils ce que cet emplacement a recu ?
+     */
+    public function receivesRain(): bool
+    {
+        return !$this->shelter->blocksRain();
+    }
+
     public function getFilledAt(): ?\DateTimeImmutable
     {
         return $this->filledAt;
@@ -281,10 +358,20 @@ class Planter
     {
         if (!$this->sowings->contains($sowing)) {
             $this->sowings->add($sowing);
-            $sowing->setPlanter($this);
+            $sowing->setPlot($this);
         }
 
         return $this;
+    }
+
+    /**
+     * Resume affichable : « Jardinière ou bac · sous serre ».
+     */
+    public function getShortDescription(): string
+    {
+        return Shelter::Aucun === $this->shelter
+            ? $this->type->label()
+            : \sprintf('%s · %s', $this->type->label(), $this->shelter->label());
     }
 
     public function __toString(): string

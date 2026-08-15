@@ -1,7 +1,7 @@
 {
-    "name": "Jardinière — suivi de semis",
-    "short_name": "Jardinière",
-    "description": "Carnet de suivi des semis en jardinières : dates, levées, photos et statistiques.",
+    "name": "Carnet de semis",
+    "short_name": "Semis",
+    "description": "Suivi des semis : dates, levées, photos et statistiques, quel que soit le mode de culture.",
     "lang": "fr",
     "start_url": "/",
     "scope": "/",

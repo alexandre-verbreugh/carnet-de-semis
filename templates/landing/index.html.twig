@@ -1,0 +1,76 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Carnet de semis{% endblock %}
+
+{% block body %}
+    <div style="max-width: 620px; margin: 0 auto; padding: 2rem 0;">
+        <h1 style="font-size: 1.9rem;">🌱 Carnet de semis</h1>
+
+        <p style="font-size: 1.05rem; color: var(--texte-doux);">
+            Un carnet pour noter ce qu'on sème et voir ce qui lève vraiment.
+            Jardinière, carré potager, pleine terre ou sous serre.
+        </p>
+
+        <div class="card">
+            <p class="card__title">À quoi ça sert</p>
+            <p class="card__meta">
+                Noter une date de semis, c'est facile. Se souvenir six mois plus tard que
+                les radis de la jardinière du muret n'ont levé qu'à 40 %, parce que le
+                substrat était de la terre de jardin tassée, ça l'est moins.
+            </p>
+            <p class="card__meta" style="margin-top: 0.75rem;">
+                L'application enregistre chaque semis, chaque observation et chaque photo,
+                puis compare le <strong>taux de levée</strong> et le <strong>délai réel</strong>
+                aux délais théoriques de l'espèce — par emplacement, par substrat et par saison.
+                Au bout de deux saisons, ce sont tes chiffres qui décident, plus les tables
+                imprimées au dos des sachets.
+            </p>
+        </div>
+
+        <div class="card">
+            <p class="card__title">Ce qu'elle fait</p>
+            <ul class="card__meta" style="margin: 0; padding-left: 1.2rem;">
+                <li>Un journal par semis : levée, arrosage, éclaircissage, maladie, récolte</li>
+                <li>Des photos prises depuis le téléphone, au fil des semaines</li>
+                <li>Un catalogue de 40 espèces avec profondeur, espacement et délais</li>
+                <li>Les relevés météo du jour, rapprochés automatiquement des semis</li>
+                <li>Le suivi des sachets de graines et de leur date de péremption</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <p class="card__title">Sobre par construction</p>
+            <p class="card__meta">
+                Moins de 4 ko par page, aucune dépendance JavaScript, aucune police ni
+                image chargée depuis un tiers, aucun traceur. Tout fonctionne avec
+                JavaScript désactivé. Les données tiennent dans un fichier SQLite :
+                sauvegarder, c'est copier ce fichier.
+            </p>
+            <p class="card__meta" style="margin-top: 0.75rem;">
+                Aucune donnée ne quitte le serveur qui héberge cette instance.
+            </p>
+        </div>
+
+        <div class="card">
+            <p class="card__title">Libre, et à héberger soi-même</p>
+            <p class="card__meta">
+                Le code est publié sous licence AGPL-3.0 : chacun peut l'installer,
+                le modifier et le redistribuer. Il tourne sur un hébergement mutualisé
+                comme sur un Raspberry Pi — il faut PHP 8.4 et rien d'autre.
+            </p>
+            {% if repository_url %}
+                <p style="margin-top: 0.75rem;">
+                    <a href="{{ repository_url }}" rel="noopener">Récupérer le code source →</a>
+                </p>
+            {% endif %}
+        </div>
+
+        <a href="{{ path('app_login') }}" class="btn btn--primary btn--block" style="margin-top: 1.5rem;">
+            Se connecter à cette instance
+        </a>
+
+        <p class="card__meta" style="margin-top: 1rem; text-align: center;">
+            Cette instance est privée : seule la personne qui l'héberge y a accès.
+        </p>
+    </div>
+{% endblock %}

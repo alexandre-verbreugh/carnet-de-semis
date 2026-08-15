@@ -13,7 +13,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /**
- * Un semis : une espece, dans une jardiniere, a une date donnee.
+ * Un semis : une espece, dans un emplacement, a une date donnee.
  *
  * germinatedAt et germinatedCount sont denormalises depuis la premiere observation
  * de type levee, pour eviter de recalculer l'agregat a chaque affichage du tableau
@@ -30,10 +30,10 @@ class Sowing
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne(targetEntity: Planter::class, inversedBy: 'sowings')]
+    #[ORM\ManyToOne(targetEntity: Plot::class, inversedBy: 'sowings')]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    private ?Planter $planter = null;
+    private ?Plot $plot = null;
 
     #[ORM\ManyToOne(targetEntity: Species::class)]
     #[ORM\JoinColumn(nullable: false)]
@@ -95,14 +95,14 @@ class Sowing
         return $this->id;
     }
 
-    public function getPlanter(): ?Planter
+    public function getPlot(): ?Plot
     {
-        return $this->planter;
+        return $this->plot;
     }
 
-    public function setPlanter(?Planter $planter): static
+    public function setPlot(?Plot $plot): static
     {
-        $this->planter = $planter;
+        $this->plot = $plot;
 
         return $this;
     }

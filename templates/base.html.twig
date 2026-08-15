@@ -4,7 +4,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
         <meta name="theme-color" content="#3b6d11">
-        <title>{% block title %}Jardinière{% endblock %}</title>
+        <title>{% block title %}Carnet de semis{% endblock %}</title>
 
         <link rel="manifest" href="{{ asset('manifest.json') }}">
         <link rel="apple-touch-icon" href="{{ asset('images/icon-192.png') }}">
@@ -24,7 +24,7 @@
                 <div class="app-header__bar">
                     <a class="app-header__brand" href="{{ path('app_dashboard') }}">
                         <span class="app-header__logo" aria-hidden="true">🌱</span>
-                        Jardinière
+                        Carnet de semis
                     </a>
 
                     <button type="button"
@@ -42,7 +42,7 @@
                         {% set nav_items = [
                             { route: 'app_dashboard',  label: 'Tableau de bord' },
                             { route: 'app_sowing_index',   label: 'Semis' },
-                            { route: 'app_planter_index',  label: 'Jardinières' },
+                            { route: 'app_plot_index',    label: 'Emplacements' },
                             { route: 'app_species_index',  label: 'Espèces' },
                             { route: 'app_calendar',       label: 'Calendrier' },
                             { route: 'app_seed_lot_index', label: 'Graines' },

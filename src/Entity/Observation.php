@@ -14,10 +14,10 @@ use Symfony\Component\Validator\Constraints as Assert;
 /**
  * Une entree du journal.
  *
- * Rattachee soit a un semis precis, soit a la jardiniere seule (arrosage global,
- * changement de substrat...). La jardiniere est toujours renseignee, y compris
+ * Rattachee soit a un semis precis, soit a l'emplacement seul (arrosage global,
+ * refection du substrat...). L'emplacement est toujours renseigne, y compris
  * quand l'observation porte sur un semis : cela evite une jointure pour toutes
- * les statistiques agregees par bac.
+ * les statistiques agregees par emplacement.
  */
 #[ORM\Entity(repositoryClass: ObservationRepository::class)]
 #[ORM\Table(name: 'observation')]
@@ -34,10 +34,10 @@ class Observation
     #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
     private ?Sowing $sowing = null;
 
-    #[ORM\ManyToOne(targetEntity: Planter::class)]
+    #[ORM\ManyToOne(targetEntity: Plot::class)]
     #[ORM\JoinColumn(nullable: false)]
     #[Assert\NotNull]
-    private ?Planter $planter = null;
+    private ?Plot $plot = null;
 
     #[ORM\Column(type: 'date_immutable')]
     #[Assert\NotNull]
@@ -98,21 +98,21 @@ class Observation
     {
         $this->sowing = $sowing;
 
-        if (null !== $sowing && null === $this->planter) {
-            $this->planter = $sowing->getPlanter();
+        if (null !== $sowing && null === $this->plot) {
+            $this->plot = $sowing->getPlot();
         }
 
         return $this;
     }
 
-    public function getPlanter(): ?Planter
+    public function getPlot(): ?Plot
     {
-        return $this->planter;
+        return $this->plot;
     }
 
-    public function setPlanter(?Planter $planter): static
+    public function setPlot(?Plot $plot): static
     {
-        $this->planter = $planter;
+        $this->plot = $plot;
 
         return $this;
     }
