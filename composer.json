@@ -1,6 +1,9 @@
 {
+    "name": "alexandre-verbreugh/carnet-de-semis",
+    "description": "Carnet de suivi de semis, sobre et auto-hebergeable : taux de levee, delais reels, photos et statistiques.",
     "type": "project",
-    "license": "proprietary",
+    "license": "AGPL-3.0-or-later",
+    "keywords": ["jardin", "potager", "semis", "ecoconception", "low-tech", "auto-hebergement"],
     "minimum-stability": "stable",
     "prefer-stable": true,
     "require": {
