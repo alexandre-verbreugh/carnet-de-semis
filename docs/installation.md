@@ -71,6 +71,30 @@ production. En générer un :
 php -r 'echo bin2hex(random_bytes(16)), PHP_EOL;'
 ```
 
+## Si l'installation échoue sur « Script @auto-scripts was called »
+
+C'est le symptôme d'un `composer install --no-dev` lancé alors que
+`APP_ENV` vaut encore `dev`. L'option `--no-dev` retire `web-profiler-bundle`,
+`debug-bundle` et `maker-bundle`, que `config/bundles.php` déclare pour
+l'environnement de développement : Symfony cherche des classes absentes.
+
+Vérifier :
+
+```bash
+grep APP_ENV .env.local          # doit contenir APP_ENV=prod
+ls vendor/symfony/web-profiler-bundle 2>/dev/null || echo "absent, normal en prod"
+```
+
+Corriger en créant `.env.local` avec `APP_ENV=prod`, puis relancer
+`composer install --no-dev`.
+
+Composer masque la cause réelle derrière « Script @auto-scripts was called via
+post-install-cmd ». Pour voir le message utile :
+
+```bash
+composer install --no-dev -vvv
+```
+
 ## Configuration PHP pour les photos
 
 **C'est le principal piège.** Par défaut, PHP limite les envois à 2 Mo alors
