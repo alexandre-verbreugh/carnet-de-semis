@@ -122,7 +122,8 @@ apache2ctl configtest
 systemctl reload apache2
 
 etape "Certificat TLS"
-if host "$DOMAINE" > /dev/null 2>&1; then
+# getent plutot que host ou dig : toujours present, aucun paquet a installer.
+if getent hosts "$DOMAINE" > /dev/null 2>&1; then
     certbot --apache -d "$DOMAINE" --non-interactive --agree-tos --redirect --register-unsafely-without-email \
         || echo "  certbot a echoue : verifier que ${DOMAINE} pointe bien vers ce serveur."
 else
