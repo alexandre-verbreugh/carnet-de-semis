@@ -65,12 +65,19 @@
             {% endif %}
         </div>
 
-        <a href="{{ path('app_login') }}" class="btn btn--primary btn--block" style="margin-top: 1.5rem;">
-            Se connecter à cette instance
-        </a>
+        <div class="btn-row" style="margin-top: 1.5rem;">
+            <a href="{{ path('app_login') }}" class="btn">Se connecter</a>
+            {% if inscriptions_ouvertes %}
+                <a href="{{ path('app_register') }}" class="btn btn--primary">Créer un compte</a>
+            {% endif %}
+        </div>
 
         <p class="card__meta" style="margin-top: 1rem; text-align: center;">
-            Cette instance est privée : seule la personne qui l'héberge y a accès.
+            {% if inscriptions_ouvertes %}
+                Chaque jardinier ne voit que ses propres semis.
+            {% else %}
+                Cette instance est privée. Le code étant libre, tu peux installer la tienne.
+            {% endif %}
         </p>
     </div>
 {% endblock %}

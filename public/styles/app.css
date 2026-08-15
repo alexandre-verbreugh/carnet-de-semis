@@ -605,3 +605,17 @@ textarea {
     margin-bottom: 1.25rem;
     text-align: center;
 }
+
+/*
+ * Champ leurre du formulaire d'inscription.
+ *
+ * Masque sans display:none : certains robots ignorent deliberement les champs
+ * ainsi caches, alors qu'ils remplissent ceux sortis de l'ecran.
+ */
+.piege {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}

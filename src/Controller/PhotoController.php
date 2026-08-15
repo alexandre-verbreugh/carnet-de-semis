@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Photo;
+use App\Security\Voter\OwnerVoter;
 use App\Service\PhotoStorage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -27,6 +28,8 @@ class PhotoController extends AbstractController
     #[Route('/{id}', name: 'app_photo_show', requirements: ['id' => '\d+'], methods: ['GET'])]
     public function show(Photo $photo, Request $request, PhotoStorage $storage): Response
     {
+        $this->denyAccessUnlessGranted(OwnerVoter::VOIR, $photo);
+
         $vignette = $request->query->getBoolean('vignette');
         $chemin = $storage->absolutePath($photo, $vignette);
 
@@ -55,6 +58,8 @@ class PhotoController extends AbstractController
         PhotoStorage $storage,
         EntityManagerInterface $entityManager,
     ): Response {
+        $this->denyAccessUnlessGranted(OwnerVoter::MODIFIER, $photo);
+
         $observation = $photo->getObservation();
         $semis = $observation?->getSowing();
 

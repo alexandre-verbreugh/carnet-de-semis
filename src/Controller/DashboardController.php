@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Sowing;
+use App\Entity\User;
 use App\Repository\PlotRepository;
 use App\Repository\SowingRepository;
 use App\Repository\SpeciesRepository;
@@ -12,6 +13,7 @@ use App\Service\GerminationForecaster;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\CurrentUser;
 
 class DashboardController extends AbstractController
 {
@@ -21,9 +23,10 @@ class DashboardController extends AbstractController
         PlotRepository $plotRepository,
         SpeciesRepository $speciesRepository,
         GerminationForecaster $forecaster,
+        #[CurrentUser] User $user,
     ): Response {
-        $enCours = $sowingRepository->findActive();
-        $enAttente = $sowingRepository->findAwaitingGermination();
+        $enCours = $sowingRepository->findActiveForOwner($user);
+        $enAttente = $sowingRepository->findAwaitingGerminationForOwner($user);
 
         $enRetard = array_values(array_filter(
             $enAttente,
@@ -39,9 +42,9 @@ class DashboardController extends AbstractController
             'sowings_actifs' => $enCours,
             'en_retard' => $enRetard,
             'a_venir' => $aVenir,
-            'taux_global' => $this->globalGerminationRate($sowingRepository->findAllOrdered()),
-            'plot_count' => $plotRepository->count([]),
-            'species_count' => $speciesRepository->count([]),
+            'taux_global' => $this->globalGerminationRate($sowingRepository->findAllForOwner($user)),
+            'plot_count' => $plotRepository->countForOwner($user),
+            'species_count' => $speciesRepository->countVisibleFor($user),
             'forecaster' => $forecaster,
         ]);
     }

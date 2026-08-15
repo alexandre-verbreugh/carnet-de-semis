@@ -103,9 +103,32 @@ class Species
     #[ORM\Column]
     private bool $isCustom = false;
 
+    /**
+     * Auteur de la fiche.
+     *
+     * Null pour le catalogue livre avec le projet, partage par tout le monde.
+     * Renseigne pour une variete ajoutee par un jardinier, qui n'a aucune
+     * raison d'encombrer le catalogue des autres.
+     */
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: true, onDelete: 'CASCADE')]
+    private ?User $owner = null;
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): static
+    {
+        $this->owner = $owner;
+
+        return $this;
     }
 
     public function getName(): string
@@ -336,6 +359,15 @@ class Species
         $this->isCustom = $isCustom;
 
         return $this;
+    }
+
+    /**
+     * Une copie est une fiche neuve : sans cela, Doctrine mettrait a jour la
+     * fiche du catalogue partage au lieu d'en creer une personnelle.
+     */
+    public function __clone(): void
+    {
+        $this->id = null;
     }
 
     public function __toString(): string

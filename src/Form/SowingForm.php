@@ -8,6 +8,7 @@ use App\Entity\Plot;
 use App\Entity\SeedLot;
 use App\Entity\Sowing;
 use App\Entity\Species;
+use App\Entity\User;
 use App\Enum\SowingMethod;
 use App\Repository\PlotRepository;
 use App\Repository\SeedLotRepository;
@@ -32,7 +33,9 @@ class SowingForm extends AbstractType
                 'choice_label' => static fn (Plot $plot): string => \sprintf('%s — %s', $plot->getName(), $plot->getShortDescription()),
                 'query_builder' => static fn (PlotRepository $repository) => $repository
                     ->createQueryBuilder('p')
+                    ->andWhere('p.owner = :owner')
                     ->andWhere('p.isArchived = false')
+                    ->setParameter('owner', $options['owner'])
                     ->orderBy('p.name', 'ASC'),
                 'placeholder' => 'Choisir un emplacement',
             ])
@@ -42,6 +45,8 @@ class SowingForm extends AbstractType
                 'choice_label' => static fn (Species $espece): string => $espece->getFullName(),
                 'query_builder' => static fn (EntityRepository $repository) => $repository
                     ->createQueryBuilder('e')
+                    ->andWhere('e.owner IS NULL OR e.owner = :owner')
+                    ->setParameter('owner', $options['owner'])
                     ->orderBy('e.name', 'ASC')
                     ->addOrderBy('e.variety', 'ASC'),
                 'placeholder' => 'Choisir une espèce',
@@ -76,6 +81,8 @@ class SowingForm extends AbstractType
                 'choice_label' => static fn (SeedLot $lot): string => (string) $lot,
                 'query_builder' => static fn (SeedLotRepository $repository) => $repository
                     ->createQueryBuilder('l')
+                    ->andWhere('l.owner = :owner')
+                    ->setParameter('owner', $options['owner'])
                     ->orderBy('l.id', 'DESC'),
             ])
             ->add('notes', TextareaType::class, [
@@ -88,5 +95,9 @@ class SowingForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(['data_class' => Sowing::class]);
+        // Sans cette option, les listes deroulantes proposeraient les
+        // emplacements et les sachets de tous les jardiniers de l'instance.
+        $resolver->setRequired('owner');
+        $resolver->setAllowedTypes('owner', User::class);
     }
 }

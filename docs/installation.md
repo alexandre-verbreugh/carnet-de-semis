@@ -61,7 +61,31 @@ WEATHER_LON=2.3964
 # la racine redirige alors directement vers la connexion.
 APP_PUBLIC_LANDING=true
 APP_REPOSITORY_URL=https://github.com/alexandre-verbreugh/carnet-de-semis
+
+# Inscriptions ouvertes a tous. Laisser false pour une instance personnelle :
+# la creation du tout premier compte reste alors possible depuis le navigateur,
+# ce qui permet d'installer sans acces SSH, mais plus aucune ensuite.
+APP_OPEN_REGISTRATION=false
 ```
+
+### Ouvrir les inscriptions
+
+Passer `APP_OPEN_REGISTRATION` à `true` expose `/inscription` à tout le monde.
+Avant de le faire, mesurer ce que cela implique :
+
+- **Vous hébergez les données d'autres personnes.** Le RGPD s'applique, même à
+  un service gratuit entre amis : information sur ce qui est collecté, droit à
+  l'effacement (l'écran « Mon compte » le permet) et à la portabilité.
+- **Aucun courriel n'est envoyé.** Un mot de passe perdu ne se récupère qu'en
+  ligne de commande, par vous : `php bin/console app:user:create <identifiant>`
+  remplace le mot de passe d'un compte existant.
+- **La protection anti-robots est un filtre, pas un mur.** Champ leurre et délai
+  minimal de saisie arrêtent les moissonneurs génériques. Surveiller la table
+  `user` les premières semaines.
+
+Les données sont cloisonnées par compte : chacun ne voit que ses emplacements,
+ses semis, ses observations et ses photos. Le catalogue livré est partagé, les
+variétés ajoutées à la main sont personnelles.
 
 **`APP_SECRET` doit être unique à votre instance.** Celui présent dans `.env.dev`
 est un secret de développement partagé par le dépôt, il ne convient pas en

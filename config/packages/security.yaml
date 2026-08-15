@@ -41,6 +41,7 @@ security:
     access_control:
         - { path: ^/$, roles: PUBLIC_ACCESS }
         - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: ^/inscription, roles: PUBLIC_ACCESS }
         - { path: ^/manifest.json, roles: PUBLIC_ACCESS }
         - { path: ^/sw.js, roles: PUBLIC_ACCESS }
         - { path: ^/, roles: ROLE_USER }

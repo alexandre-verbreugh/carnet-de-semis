@@ -22,6 +22,8 @@ class LandingController extends AbstractController
         private readonly bool $publicLanding,
         #[Autowire('%env(string:APP_REPOSITORY_URL)%')]
         private readonly string $repositoryUrl,
+        #[Autowire('%env(bool:APP_OPEN_REGISTRATION)%')]
+        private readonly bool $inscriptionsOuvertes,
     ) {
     }
 
@@ -38,6 +40,7 @@ class LandingController extends AbstractController
 
         return $this->render('landing/index.html.twig', [
             'repository_url' => '' === $this->repositoryUrl ? null : $this->repositoryUrl,
+            'inscriptions_ouvertes' => $this->inscriptionsOuvertes,
         ]);
     }
 }

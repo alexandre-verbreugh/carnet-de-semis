@@ -1,0 +1,36 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un compte — Carnet de semis{% endblock %}
+
+{% block body %}
+    <div class="login">
+        <h1 class="login__title">🌱 Créer un compte</h1>
+
+        {% if premier_compte %}
+            <p class="flash flash--warning">
+                Aucun compte n'existe encore sur cette instance : ce premier compte
+                sera le tien. Une fois créé, cette page ne sera plus accessible.
+            </p>
+        {% endif %}
+
+        {{ form_start(form) }}
+            {% if not form.vars.valid %}
+                {{ form_errors(form) }}
+            {% endif %}
+
+            {{ form_row(form.username) }}
+            {{ form_row(form.password.first) }}
+            {{ form_row(form.password.second) }}
+            {{ form_row(form.siteWeb) }}
+            {{ form_row(form.affichage) }}
+
+            <button type="submit" class="btn btn--primary btn--block">Créer le compte</button>
+        {{ form_end(form) }}
+
+        <p class="form-help" style="margin-top: 1rem; text-align: center;">
+            Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a>
+        </p>
+    </div>
+{% endblock %}
+
+{% block floating_action %}{% endblock %}
