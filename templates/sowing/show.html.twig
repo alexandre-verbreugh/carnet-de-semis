@@ -107,6 +107,24 @@
                 {%- if observation.note %}{% if mesures is not empty %}<br>{% endif %}{{ observation.note|nl2br }}{% endif %}
             </p>
 
+            {% if observation.photos is not empty %}
+                <div class="gallery">
+                    {% for photo in observation.photos %}
+                        <figure class="gallery__item">
+                            <a href="{{ path('app_photo_show', {id: photo.id}) }}">
+                                <img src="{{ path('app_photo_show', {id: photo.id, vignette: 1}) }}"
+                                     alt="Photo du {{ observation.observedAt|date('d/m/Y') }}"
+                                     loading="lazy" decoding="async" width="300" height="300">
+                            </a>
+                            <form method="post" action="{{ path('app_photo_delete', {id: photo.id}) }}">
+                                <input type="hidden" name="_token" value="{{ csrf_token('supprimer-photo-' ~ photo.id) }}">
+                                <button type="submit" class="gallery__delete" aria-label="Supprimer cette photo">×</button>
+                            </form>
+                        </figure>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <form method="post" action="{{ path('app_observation_delete', {id: observation.id}) }}"
                   style="margin-top: 0.5rem;">
                 <input type="hidden" name="_token" value="{{ csrf_token('supprimer-observation-' ~ observation.id) }}">

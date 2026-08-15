@@ -11,16 +11,20 @@ use App\Enum\ObservationType;
 use App\Enum\SowingStatus;
 use App\Repository\PlotRepository;
 use App\Repository\SowingRepository;
+use App\Service\PhotoStorage;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\EnumType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormEvent;
 use Symfony\Component\Form\FormEvents;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\All;
+use Symfony\Component\Validator\Constraints\Image;
 
 /**
  * Saisie d'une observation, pensee pour etre remplie debout devant un bac.
@@ -97,6 +101,31 @@ class ObservationForm extends AbstractType
                 'label' => 'Note',
                 'required' => false,
                 'attr' => ['rows' => 3, 'placeholder' => 'Ce que tu vois, même approximatif.'],
+            ])
+            // Champ non mappe : les fichiers recus sont transformes en entites
+            // Photo par PhotoStorage, l'entite Observation n'a pas a connaitre
+            // le detail d'un televersement.
+            ->add('photos', FileType::class, [
+                'label' => 'Photos',
+                'mapped' => false,
+                'required' => false,
+                'multiple' => true,
+                'help' => 'JPEG, PNG ou WebP. Redimensionnées automatiquement, l\'original n\'est pas conservé.',
+                'attr' => [
+                    'accept' => 'image/jpeg,image/png,image/webp',
+                    // Ouvre directement l'appareil photo sur mobile.
+                    'capture' => 'environment',
+                ],
+                'constraints' => [
+                    new All([
+                        new Image(
+                            maxSize: PhotoStorage::TAILLE_MAX_OCTETS,
+                            mimeTypes: PhotoStorage::TYPES_ACCEPTES,
+                            mimeTypesMessage: 'Formats acceptés : JPEG, PNG, WebP.',
+                            maxSizeMessage: 'Photo trop lourde ({{ size }} {{ suffix }}), maximum {{ limit }} {{ suffix }}.',
+                        ),
+                    ]),
+                ],
             ]);
 
         // L'emplacement se deduit du semis quand il n'a pas ete choisi.

@@ -8,9 +8,11 @@ use App\Entity\Observation;
 use App\Entity\Sowing;
 use App\Form\ObservationForm;
 use App\Service\ObservationRecorder;
+use App\Service\PhotoStorage;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,6 +24,7 @@ class ObservationController extends AbstractController
     public function new(
         Request $request,
         ObservationRecorder $recorder,
+        PhotoStorage $storage,
         #[MapEntity(mapping: ['semis' => 'id'])] ?Sowing $semis = null,
     ): Response {
         $observation = new Observation();
@@ -46,9 +49,15 @@ class ObservationController extends AbstractController
                 return $this->render('observation/new.html.twig', ['form' => $form]);
             }
 
+            $refusees = $this->attachPhotos($observation, $form->get('photos')->getData(), $storage);
+
             $recorder->record($observation);
 
             $this->addFlash('success', 'Observation enregistrée.');
+
+            foreach ($refusees as $message) {
+                $this->addFlash('warning', $message);
+            }
 
             return null !== $observation->getSowing()
                 ? $this->redirectToRoute('app_sowing_show', ['id' => $observation->getSowing()->getId()])
@@ -59,6 +68,40 @@ class ObservationController extends AbstractController
             'form' => $form,
             'semis' => $semis,
         ]);
+    }
+
+    /**
+     * Transforme les fichiers recus en photos rattachees a l'observation.
+     *
+     * Une photo refusee n'annule jamais l'observation : la note ecrite au
+     * jardin a plus de valeur qu'un cliche, et tout perdre parce qu'un fichier
+     * est trop lourd serait le plus sur moyen de ne plus rien saisir.
+     *
+     * @param list<UploadedFile>|UploadedFile|null $fichiers
+     *
+     * @return list<string> messages des photos refusees
+     */
+    private function attachPhotos(Observation $observation, mixed $fichiers, PhotoStorage $storage): array
+    {
+        if (null === $fichiers) {
+            return [];
+        }
+
+        $refusees = [];
+
+        foreach (\is_array($fichiers) ? $fichiers : [$fichiers] as $fichier) {
+            if (!$fichier instanceof UploadedFile) {
+                continue;
+            }
+
+            try {
+                $observation->addPhoto($storage->store($fichier));
+            } catch (\RuntimeException $exception) {
+                $refusees[] = \sprintf('%s : %s', $fichier->getClientOriginalName(), $exception->getMessage());
+            }
+        }
+
+        return $refusees;
     }
 
     #[Route('/{id}/supprimer', name: 'app_observation_delete', requirements: ['id' => '\d+'], methods: ['POST'])]
